@@ -1,6 +1,7 @@
 import { NavLink, useNavigate } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
 import useStore, { getXPProgress } from '@/store/useStore'
+import logo from '@/assets/logo.png'
 
 const NAV = [
   { to: '/',          label: 'Dashboard',         icon: '🏠' },
@@ -32,13 +33,8 @@ export default function Sidebar() {
     <aside className="w-64 min-h-screen bg-white border-r border-gray-100 flex flex-col">
       {/* Logo */}
       <div className="px-6 py-5 flex items-center gap-3 border-b border-gray-100">
-        <div className="w-9 h-9 rounded-xl bg-brand-600 flex items-center justify-center text-white text-lg">
-          <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5" stroke="currentColor" strokeWidth="1.8">
-            <ellipse cx="12" cy="12" rx="10" ry="4" />
-            <ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(60 12 12)" />
-            <ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(120 12 12)" />
-            <circle cx="12" cy="12" r="1.5" fill="currentColor" />
-          </svg>
+        <div className="w-10 h-10 rounded-xl overflow-hidden flex items-center justify-center bg-white ring-1 ring-gray-100">
+          <img src={logo} alt="Scientific Odyssey logo" className="w-full h-full object-cover" />
         </div>
         <div>
           <p className="text-sm font-bold text-gray-900 leading-tight">Scientific</p>

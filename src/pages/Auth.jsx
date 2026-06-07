@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
+import logo from '@/assets/logo.png'
 
 export default function Auth() {
   const navigate = useNavigate()
@@ -48,13 +49,8 @@ export default function Auth() {
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-brand-600 mb-4 shadow-lg">
-            <svg viewBox="0 0 24 24" fill="none" className="w-7 h-7 text-white" stroke="currentColor" strokeWidth="1.8">
-              <ellipse cx="12" cy="12" rx="10" ry="4" />
-              <ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(60 12 12)" />
-              <ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(120 12 12)" />
-              <circle cx="12" cy="12" r="1.5" fill="currentColor" />
-            </svg>
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl overflow-hidden mb-4 shadow-lg ring-1 ring-gray-100 bg-white">
+            <img src={logo} alt="Scientific Odyssey logo" className="w-full h-full object-cover" />
           </div>
           <h1 className="text-2xl font-bold text-gray-900">Scientific Odyssey</h1>
           <p className="text-sm text-gray-500 mt-1">Grade 6 Science Exam Prep · PH</p>
