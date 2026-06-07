@@ -6,6 +6,7 @@ import {
   LEGENDARY_ISLANDS, LEGENDARY_ISLAND_QUESTIONS, LEGENDARY_OLYMPUS_QUESTIONS,
 } from '@/data/gameQuestions'
 import { pickQuestions } from '@/utils/questionHistory'
+import Confetti from '@/components/Confetti'
 
 const STORAGE_KEY = 'sciodyssey_game_v1'
 const ISLAND_PASS = 3   // need 3/5+ to pass an island
@@ -138,6 +139,28 @@ export default function OdysseyGame() {
     const opt = (q.options ?? []).find(o => o[0] === letter)
     return opt ?? letter
   }
+
+  // ── CELEBRATION (confetti + congrats popup) ──────────────────────────────
+  // Fires once whenever the player conquers an island, or completes a whole
+  // mode (normal / hard / legendary) by winning the final exam.
+  const [celebration, setCelebration] = useState(null) // { message, sub } | null
+  useEffect(() => {
+    if (gs.phase === 'island-result' && islandData && getIslandScore() >= ISLAND_PASS) {
+      setCelebration({ message: `${islandData.name} Conquered!`, sub: 'Onward across the Sea of Knowledge ⛵' })
+    } else if (gs.phase === 'win') {
+      const modeName = gs.legendaryMode ? 'Legendary Mode' : gs.hardMode ? 'Hard Mode' : 'Scientific Odyssey'
+      setCelebration({ message: `${modeName} Complete!`, sub: 'You did it — congratulations, scholar! 🎓' })
+    } else {
+      setCelebration(null)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gs.phase])
+
+  useEffect(() => {
+    if (!celebration) return
+    const t = setTimeout(() => setCelebration(null), 2800)
+    return () => clearTimeout(t)
+  }, [celebration])
 
   // ── TITLE ────────────────────────────────────────────────────────────────
   if (gs.phase === 'title') return (
@@ -487,6 +510,7 @@ export default function OdysseyGame() {
 
     return (
       <div className="max-w-xl mx-auto space-y-5 animate-fade-in">
+        {passed && <Confetti show={!!celebration} message={celebration?.message} sub={celebration?.sub} />}
         {/* Score card with illustration */}
         <div className={`card text-center ${passed ? 'bg-emerald-50 border-emerald-200' : 'bg-red-50 border-red-200'}`}>
           <div className="text-5xl mb-3">{passed ? '🏆' : '💪'}</div>
@@ -749,6 +773,7 @@ export default function OdysseyGame() {
     const score = getOlympusScore()
     return (
       <div className="max-w-xl mx-auto text-center space-y-6 animate-fade-in">
+        <Confetti show={!!celebration} message={celebration?.message} sub={celebration?.sub} />
         {/* Win illustration */}
         <div className="font-mono text-center text-base select-none bg-gradient-to-b from-amber-50 to-yellow-50 rounded-2xl py-4 border border-amber-100">
           <div className="text-2xl">⚡{'  '}⭐{'  '}⚡</div>
