@@ -1,4 +1,5 @@
 import useStore, { getXPProgress, LEVEL_THRESHOLDS } from '@/store/useStore'
+import OdysseyBadges from '@/components/OdysseyBadges'
 import {
   ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid,
   BarChart, Bar, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
@@ -197,6 +198,10 @@ export default function ProgressTracker() {
           </div>
         </>
       )}
+      {/* Odyssey Badges */}
+      <div className="card">
+        <OdysseyBadges streak={profile?.streak ?? 0} />
+      </div>
     </div>
   )
 }

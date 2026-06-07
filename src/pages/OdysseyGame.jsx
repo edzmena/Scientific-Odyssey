@@ -10,28 +10,66 @@ const ISLAND_PASS = 3   // need 3/5+ to pass an island
 const OLYMPUS_PASS = 7  // need 7/10 to pass Olympus
 
 const INIT = {
-  phase: 'title',       // title|intro|map|island|island-result|mutiny|mutiny-result|olympus|win|fail|hard-intro|training
+  phase: 'title',
   hardMode: false,
   introSlide: 0,
-  completedIslands: [], // ['geometry', 'cyclops', ...]
+  completedIslands: [],
   currentIsland: null,
   currentQ: 0,
   answers: {},
+  submitted: {},      // tracks which questions have been locked in by clicking Next
   mutinyDone: false,
   mutinyQ: 0,
   mutinyAnswers: {},
+  mutinySubmitted: {},
   olympusQ: 0,
   olympusAnswers: {},
+  olympusSubmitted: {},
   trainingDay: 0,
   trainingQ: 0,
   trainingAnswers: {},
+  trainingSubmitted: {},
   trainingDaysComplete: [],
   showHint: false,
   xpAwarded: false,
 }
 
-function shuffle(arr) {
-  return [...arr].sort(() => Math.random() - 0.5)
+// Island illustrations — emoji art panels
+const ISLAND_ILLUSTRATIONS = {
+  geometry: `
+    📐  ╱╲  📐
+   ╱    ╲
+  ╱  △△△  ╲
+ ╱___□___◇___╲
+  `,
+  cyclops: `
+  🕳️  ·  ·  🕳️
+      👁️
+   ╭──────╮
+   │ Zzz  │
+   ╰──────╯
+  `,
+  sirens: `
+   🎵  ≋≋≋  🎵
+  ≋  🧜‍♀️  🧜‍♀️  ≋
+ ≋≋  ♪ ♬ ♪  ≋≋
+  `,
+  hermes: `
+   🌿  📚  🌿
+   A  B  C  D
+   ✏️  📖  ✏️
+  `,
+  poseidon: `
+  🌊  🐟  🌊
+   ≈ 🔱 ≈
+  🌊  🐚  🌊
+  `,
+  labyrinth: `
+  🌀──┐  ┌──🌀
+  │  │  │  │
+  └──┘  └──┘
+     🔮
+  `,
 }
 
 export default function OdysseyGame() {
@@ -47,7 +85,6 @@ export default function OdysseyGame() {
   function set(patch) { setGs(p => ({ ...p, ...patch })) }
   function reset(hard = false) { setGs({ ...INIT, hardMode: hard }) }
 
-  // Helpers
   const islandData = ISLANDS.find(i => i.id === gs.currentIsland)
   const islandQs = gs.currentIsland ? (ISLAND_QUESTIONS[gs.currentIsland] ?? []) : []
   const olympusQs = gs.hardMode ? HARD_OLYMPUS_QUESTIONS : OLYMPUS_QUESTIONS
@@ -57,23 +94,33 @@ export default function OdysseyGame() {
     islandQs.forEach((q, i) => { if (gs.answers[i] === q.answer) score++ })
     return score
   }
-
   function getMutinyScore() {
     let score = 0
     MUTINY_QUESTIONS.forEach((q, i) => { if (gs.mutinyAnswers[i] === q.answer) score++ })
     return score
   }
-
   function getOlympusScore() {
     let score = 0
     olympusQs.forEach((q, i) => { if (gs.olympusAnswers[i] === q.answer) score++ })
     return score
   }
 
+  // Helper: given a question and its answer letter, return the full option text
+  function getAnswerText(q, letter) {
+    if (!letter) return 'Not answered'
+    const opt = (q.options ?? []).find(o => o[0] === letter)
+    return opt ?? letter
+  }
+
   // ── TITLE ────────────────────────────────────────────────────────────────
   if (gs.phase === 'title') return (
     <div className="min-h-[70vh] flex flex-col items-center justify-center text-center animate-fade-in">
-      <div className="text-7xl mb-4">⛵</div>
+      {/* Illustration */}
+      <div className="mb-6 select-none">
+        <div className="text-7xl mb-2">⛵</div>
+        <div className="text-2xl tracking-widest text-brand-300 font-mono">≈ ≈ ≈ ≈ ≈ ≈ ≈</div>
+        <div className="text-xs text-gray-400 font-mono mt-1">🌊 Sea of Knowledge 🌊</div>
+      </div>
       <h1 className="text-4xl font-bold text-gray-900 mb-2">Scientific Odyssey</h1>
       <p className="text-gray-500 mb-1 text-sm">A story-based science adventure game</p>
       <p className="text-xs text-brand-600 font-semibold mb-8">Grade 6 NCE Reviewer · PSHS · Manila Science · QCSHS</p>
@@ -105,11 +152,45 @@ export default function OdysseyGame() {
   if (gs.phase === 'intro') {
     const slide = STORY_SLIDES[gs.introSlide]
     const isLast = gs.introSlide === STORY_SLIDES.length - 1
+
+    const SLIDE_ILLUSTRATIONS = [
+      // Sea of Knowledge
+      <div className="font-mono text-center text-base text-brand-400 leading-tight select-none">
+        <div>☁️{'  '}☁️{'       '}☁️</div>
+        <div className="text-brand-600">{'  '}⛵{'    '}⛵</div>
+        <div className="text-cyan-400">≈≈≈≈≈≈≈≈≈≈≈≈</div>
+        <div className="text-blue-400">🌊🌊🌊🌊🌊🌊</div>
+      </div>,
+      // Your Mission
+      <div className="font-mono text-center text-base leading-tight select-none">
+        <div>📜{'  '}⚔️{'  '}🛡️</div>
+        <div className="text-amber-500">✨ YOUR MISSION ✨</div>
+        <div>📐 🔬 📖 🌿 🌊</div>
+        <div className="text-xs text-gray-400">Conquer all 6 islands</div>
+      </div>,
+      // Your Crew
+      <div className="font-mono text-center text-base leading-tight select-none">
+        <div>🧑‍✈️ 👩‍🔬 🧑‍🎓 👨‍🏫</div>
+        <div className="text-brand-500 font-bold">YOUR CREW</div>
+        <div className="text-xs text-gray-400">aboard the <em>Elpis</em></div>
+        <div>⚓{'  '}🗺️{'  '}🧭</div>
+      </div>,
+      // Journey Begins
+      <div className="font-mono text-center text-base leading-tight select-none">
+        <div>🏛️{'        '}🏛️</div>
+        <div className="text-amber-500">  OLYMPUS ACADEMY</div>
+        <div className="text-gray-300">{'    '}↑↑↑↑↑↑</div>
+        <div className="text-blue-400">≈≈ ⛵ ≈≈≈≈ ⛵ ≈≈</div>
+      </div>,
+    ]
+
     return (
       <div className="max-w-xl mx-auto animate-fade-in">
         <div className="card min-h-72 flex flex-col justify-between">
           <div>
-            <div className="text-5xl mb-4 text-center">{slide.emoji}</div>
+            <div className="mb-4 p-3 bg-gray-50 rounded-2xl">
+              {SLIDE_ILLUSTRATIONS[gs.introSlide] ?? <div className="text-4xl text-center">{slide.emoji}</div>}
+            </div>
             <h2 className="text-xl font-bold text-gray-900 mb-4 text-center">{slide.title}</h2>
             <p className="text-gray-700 leading-relaxed whitespace-pre-line">{slide.text}</p>
           </div>
@@ -148,23 +229,35 @@ export default function OdysseyGame() {
           {gs.hardMode && <span className="text-xs font-bold bg-amber-100 text-amber-700 px-3 py-1 rounded-xl">⚡ HARD MODE</span>}
         </div>
 
-        {/* Mutiny warning */}
+        {/* Map illustration */}
+        <div className="font-mono text-center text-sm text-gray-400 bg-blue-50 rounded-2xl py-3 select-none leading-relaxed">
+          <span className="text-blue-300">≈≈ </span>
+          {ISLANDS.map(isl => (
+            <span key={isl.id}>
+              <span title={isl.name} className={gs.completedIslands.includes(isl.id) ? 'grayscale-0' : 'opacity-60'}>
+                {gs.completedIslands.includes(isl.id) ? '✅' : isl.emoji}
+              </span>
+              <span className="text-blue-300"> ≈ </span>
+            </span>
+          ))}
+          {allDone && gs.mutinyDone ? '🏛️' : '🌫️'}
+          <span className="text-blue-300"> ≈≈</span>
+          <p className="text-xs text-blue-400 mt-1">⛵ Your journey across the Sea of Knowledge</p>
+        </div>
+
         {needsMutiny && (
-          <div className="card border-red-200 bg-red-50 cursor-pointer hover:shadow-md transition" onClick={() => set({ phase: 'mutiny', mutinyQ: 0, mutinyAnswers: {} })}>
+          <div className="card border-red-200 bg-red-50 cursor-pointer hover:shadow-md transition" onClick={() => set({ phase: 'mutiny', mutinyQ: 0, mutinyAnswers: {}, mutinySubmitted: {} })}>
             <div className="flex items-center gap-3">
               <span className="text-3xl">⚡</span>
               <div>
                 <p className="font-bold text-red-700">Mutiny Event!</p>
                 <p className="text-sm text-red-600">Your crew is in conflict. Resolve it before continuing.</p>
               </div>
-              <button className="ml-auto btn-primary bg-red-600 hover:bg-red-700 text-sm">
-                Handle Mutiny →
-              </button>
+              <button className="ml-auto btn-primary bg-red-600 hover:bg-red-700 text-sm">Handle Mutiny →</button>
             </div>
           </div>
         )}
 
-        {/* Islands */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {ISLANDS.map((island) => {
             const done = gs.completedIslands.includes(island.id)
@@ -172,10 +265,10 @@ export default function OdysseyGame() {
             return (
               <div
                 key={island.id}
-                onClick={() => !locked && set({ phase: 'island', currentIsland: island.id, currentQ: 0, answers: {}, showHint: false })}
+                onClick={() => !locked && set({ phase: 'island', currentIsland: island.id, currentQ: 0, answers: {}, submitted: {}, showHint: false })}
                 className={`card border transition-all ${island.border} ${locked ? 'opacity-50 cursor-not-allowed' : 'hover:shadow-md cursor-pointer'} ${done ? 'bg-emerald-50 border-emerald-300' : island.bg}`}
               >
-                <div className="text-3xl mb-2">{done ? '✅' : island.emoji}</div>
+                <div className="text-4xl mb-2">{done ? '✅' : island.emoji}</div>
                 <p className="font-bold text-gray-900">{island.name}</p>
                 <p className="text-xs text-gray-500 mt-0.5 mb-1">{island.subject}</p>
                 <p className="text-xs text-gray-600">{island.description}</p>
@@ -186,14 +279,13 @@ export default function OdysseyGame() {
           })}
         </div>
 
-        {/* Proceed to Olympus */}
         {allDone && gs.mutinyDone && (
           <div className="card bg-gradient-to-r from-brand-600 to-indigo-500 text-white text-center">
             <p className="text-3xl mb-2">🏛️</p>
             <p className="text-xl font-bold mb-1">All Islands Conquered!</p>
             <p className="text-sm text-indigo-100 mb-4">The gates of Mount Olympus Academy await.</p>
             <button
-              onClick={() => set({ phase: 'olympus', olympusQ: 0, olympusAnswers: {} })}
+              onClick={() => set({ phase: 'olympus', olympusQ: 0, olympusAnswers: {}, olympusSubmitted: {} })}
               className="bg-white text-brand-700 font-bold px-6 py-2 rounded-xl hover:bg-indigo-50 transition"
             >
               ⚡ Ascend to Mount Olympus
@@ -212,91 +304,137 @@ export default function OdysseyGame() {
     const q = islandQs[gs.currentQ]
     const totalQs = islandQs.length
     const selected = gs.answers[gs.currentQ]
+    const isSubmitted = gs.submitted?.[gs.currentQ]
     const isLast = gs.currentQ === totalQs - 1
 
     return (
       <div className="max-w-2xl space-y-5 animate-fade-in">
         {/* Header */}
         <div className={`rounded-2xl bg-gradient-to-r ${islandData.color} p-4 text-white`}>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-2xl">{islandData.emoji}</span>
-            <h2 className="text-lg font-bold">{islandData.name}</h2>
+          <div className="flex items-center gap-3">
+            <span className="text-3xl">{islandData.emoji}</span>
+            <div className="flex-1">
+              <h2 className="text-lg font-bold">{islandData.name}</h2>
+              <p className="text-xs text-white/70">{islandData.subject}</p>
+            </div>
+            <div className="text-right text-xs text-white/70">
+              {gs.currentQ + 1}/{totalQs}
+            </div>
           </div>
-          <div className="w-full bg-white/30 rounded-full h-1.5 mt-2">
+          <div className="w-full bg-white/30 rounded-full h-1.5 mt-3">
             <div className="bg-white h-1.5 rounded-full transition-all" style={{ width: `${((gs.currentQ) / totalQs) * 100}%` }} />
           </div>
-          <p className="text-xs text-white/80 mt-1">Question {gs.currentQ + 1} of {totalQs}</p>
         </div>
 
-        {/* Story intro on first question */}
+        {/* Island illustration on first question */}
         {gs.currentQ === 0 && (
-          <div className="card bg-gray-50 text-sm text-gray-600 italic">
-            📜 {islandData.intro}
+          <div className="card bg-gray-50 space-y-2">
+            {ISLAND_ILLUSTRATIONS[islandData.id] && (
+              <pre className="text-center text-sm leading-tight select-none text-gray-500 font-mono overflow-hidden">
+                {ISLAND_ILLUSTRATIONS[islandData.id]}
+              </pre>
+            )}
+            <p className="text-sm text-gray-600 italic text-center">📜 {islandData.intro}</p>
           </div>
         )}
 
         {/* Question */}
         <div className="card space-y-4">
-          <p className="font-semibold text-gray-900 leading-relaxed">{q.q}</p>
+          <div className="flex items-start gap-2">
+            <span className="shrink-0 text-xs font-bold text-gray-400 bg-gray-100 rounded-lg px-2 py-1 mt-0.5">Q{gs.currentQ + 1}</span>
+            <p className="font-semibold text-gray-900 leading-relaxed">{q.q}</p>
+          </div>
+
           <div className="space-y-2">
             {q.options.map((opt) => {
               const letter = opt[0]
               const chosen = selected === letter
+              // After submitting this question, show correct/wrong colors
+              const locked = !!isSubmitted
+              const isCorrect = letter === q.answer
               return (
                 <button
                   key={letter}
-                  onClick={() => { if (!selected) set({ answers: { ...gs.answers, [gs.currentQ]: letter }, showHint: false }) }}
-                  disabled={!!selected}
+                  onClick={() => {
+                    if (!locked) set({ answers: { ...gs.answers, [gs.currentQ]: letter }, showHint: false })
+                  }}
+                  disabled={locked}
                   className={`w-full text-left px-4 py-3 rounded-xl border text-sm font-medium transition-all ${
-                    chosen ? 'bg-brand-50 border-brand-400 text-brand-800' :
-                    'border-gray-200 text-gray-700 hover:bg-gray-50 disabled:cursor-default'
+                    locked && isCorrect
+                      ? 'bg-emerald-50 border-emerald-400 text-emerald-800'
+                      : locked && chosen && !isCorrect
+                        ? 'bg-red-50 border-red-400 text-red-700'
+                        : locked
+                          ? 'border-gray-200 text-gray-400 cursor-default'
+                          : chosen
+                            ? 'bg-brand-50 border-brand-400 text-brand-800 ring-2 ring-brand-200'
+                            : 'border-gray-200 text-gray-700 hover:bg-gray-50'
                   }`}
                 >
                   {opt}
+                  {locked && isCorrect && <span className="ml-2 text-emerald-500 font-bold">✓</span>}
+                  {locked && chosen && !isCorrect && <span className="ml-2 text-red-400 font-bold">✗</span>}
                 </button>
               )
             })}
           </div>
 
+          {/* Change-answer notice */}
+          {selected && !isSubmitted && (
+            <p className="text-xs text-gray-400 italic text-center">
+              You can change your answer before clicking Next.
+            </p>
+          )}
+
           {/* Athena hint */}
-          {!gs.hardMode && !selected && (
+          {!gs.hardMode && !isSubmitted && (
             <button
               onClick={() => set({ showHint: !gs.showHint })}
               className="text-xs text-brand-500 hover:text-brand-700 flex items-center gap-1"
             >
-              🦉 {gs.showHint ? 'Hide' : 'Ask Athena for a hint'}
+              🦉 {gs.showHint ? 'Hide hint' : 'Ask Athena for a hint'}
             </button>
           )}
-          {gs.showHint && !selected && (
+          {gs.showHint && !isSubmitted && (
             <div className="bg-amber-50 border border-amber-100 rounded-xl p-3 text-xs text-amber-800">
               <span className="font-semibold">🦉 Athena:</span> {q.hint}
             </div>
           )}
 
-          {/* Next button after answering */}
+          {/* After lock: show explanation */}
+          {isSubmitted && (
+            <div className="bg-blue-50 border border-blue-100 rounded-xl p-3 text-xs text-blue-800">
+              <span className="font-semibold">📖 Answer:</span> {getAnswerText(q, q.answer)}
+              {q.hint && <p className="mt-1 text-blue-600">🦉 {q.hint}</p>}
+            </div>
+          )}
+
+          {/* Next button — appears when an answer is selected */}
           {selected && (
-            <div className="pt-2">
-              <button
-                onClick={() => {
+            <button
+              onClick={() => {
+                if (!isSubmitted) {
+                  // Lock in this answer
+                  const newSubmitted = { ...(gs.submitted ?? {}), [gs.currentQ]: true }
                   if (isLast) {
                     const score = Object.entries({ ...gs.answers }).filter(([i, a]) => a === islandQs[+i].answer).length
                     const passed = score >= ISLAND_PASS
                     if (passed && !gs.completedIslands.includes(gs.currentIsland)) {
                       const updated = [...gs.completedIslands, gs.currentIsland]
-                      set({ phase: 'island-result', completedIslands: updated })
+                      set({ phase: 'island-result', completedIslands: updated, submitted: newSubmitted })
                       if (user) awardXP(user.id, 30, 'island')
                     } else {
-                      set({ phase: 'island-result' })
+                      set({ phase: 'island-result', submitted: newSubmitted })
                     }
                   } else {
-                    set({ currentQ: gs.currentQ + 1, showHint: false })
+                    set({ submitted: newSubmitted, currentQ: gs.currentQ + 1, showHint: false })
                   }
-                }}
-                className="btn-primary"
-              >
-                {isLast ? '📊 See Results' : 'Next →'}
-              </button>
-            </div>
+                }
+              }}
+              className="btn-primary"
+            >
+              {isLast ? '📊 See Results' : 'Next →'}
+            </button>
           )}
         </div>
       </div>
@@ -311,6 +449,7 @@ export default function OdysseyGame() {
 
     return (
       <div className="max-w-xl mx-auto space-y-5 animate-fade-in">
+        {/* Score card with illustration */}
         <div className={`card text-center ${passed ? 'bg-emerald-50 border-emerald-200' : 'bg-red-50 border-red-200'}`}>
           <div className="text-5xl mb-3">{passed ? '🏆' : '💪'}</div>
           <h2 className="text-xl font-bold text-gray-900">{islandData.name}</h2>
@@ -319,23 +458,32 @@ export default function OdysseyGame() {
             {passed ? `Island Conquered! +30 XP` : `Need ${ISLAND_PASS}/${total} to pass. Try again!`}
           </p>
           {passed && islandData.crew && (
-            <p className="text-sm text-gray-600 mt-2">
-              🧑‍✈️ {islandData.crew} joins your crew!
-            </p>
+            <p className="text-sm text-gray-600 mt-2">🧑‍✈️ {islandData.crew} joins your crew!</p>
           )}
         </div>
 
-        {/* Answer review */}
+        {/* Answer review — show full answer text */}
         <div className="space-y-3">
           {islandQs.map((q, i) => {
             const ua = gs.answers[i]
             const correct = ua === q.answer
             return (
               <div key={i} className={`card border-l-4 ${correct ? 'border-emerald-400' : 'border-red-400'} py-3 px-4`}>
-                <p className="text-sm font-medium text-gray-800">{correct ? '✓' : '✗'} {q.q}</p>
-                {!correct && <p className="text-xs text-red-500 mt-1">Your answer: {ua ?? 'Not answered'}</p>}
-                <p className="text-xs text-emerald-700">Correct: {q.answer}</p>
-                {!gs.hardMode && <p className="text-xs text-gray-500 mt-1">🦉 {q.hint}</p>}
+                <p className="text-sm font-medium text-gray-800 mb-1">
+                  <span className={correct ? 'text-emerald-600' : 'text-red-500'}>{correct ? '✓' : '✗'}</span>
+                  {' '}{q.q}
+                </p>
+                {!correct && (
+                  <p className="text-xs text-red-500 mb-1">
+                    Your answer: <strong>{getAnswerText(q, ua)}</strong>
+                  </p>
+                )}
+                <p className="text-xs text-emerald-700 mb-1">
+                  ✅ Correct answer: <strong>{getAnswerText(q, q.answer)}</strong>
+                </p>
+                {!gs.hardMode && q.hint && (
+                  <p className="text-xs text-gray-500 bg-amber-50 rounded-lg p-2 mt-1">🦉 {q.hint}</p>
+                )}
               </div>
             )
           })}
@@ -344,7 +492,7 @@ export default function OdysseyGame() {
         <div className="flex gap-3">
           <button onClick={() => set({ phase: 'map' })} className="btn-outline">← Back to Map</button>
           {!passed && (
-            <button onClick={() => set({ phase: 'island', currentQ: 0, answers: {}, showHint: false })} className="btn-primary">
+            <button onClick={() => set({ phase: 'island', currentQ: 0, answers: {}, submitted: {}, showHint: false })} className="btn-primary">
               🔄 Try Again
             </button>
           )}
@@ -358,15 +506,21 @@ export default function OdysseyGame() {
     const q = MUTINY_QUESTIONS[gs.mutinyQ]
     const isLast = gs.mutinyQ === MUTINY_QUESTIONS.length - 1
     const selected = gs.mutinyAnswers[gs.mutinyQ]
+    const isSubmitted = gs.mutinySubmitted?.[gs.mutinyQ]
 
     return (
       <div className="max-w-2xl space-y-5 animate-fade-in">
         <div className="card bg-gradient-to-r from-red-500 to-orange-400 text-white">
+          {/* Mutiny illustration */}
+          <div className="font-mono text-center text-sm mb-3 opacity-80 select-none leading-tight">
+            <div>⚡ 😤 👤 👤 👤 😤 ⚡</div>
+            <div>{'  '}⚓{'  '}YOUR CREW{'  '}⚓</div>
+            <div>🌊🌊🌊🌊🌊🌊🌊🌊🌊</div>
+          </div>
           <div className="text-3xl mb-2">⚡ MUTINY!</div>
           <p className="font-bold text-lg">Your crew is in conflict.</p>
           <p className="text-sm text-red-100 mt-1">
-            Eurylochus has stirred unrest. The crew threatens to turn back. Your leadership is being tested.
-            Answer wisely to restore harmony aboard the Elpis.
+            Eurylochus has stirred unrest. Answer wisely to restore harmony aboard the Elpis.
           </p>
           <p className="text-xs text-red-200 mt-2">Question {gs.mutinyQ + 1} of {MUTINY_QUESTIONS.length}</p>
         </div>
@@ -377,13 +531,19 @@ export default function OdysseyGame() {
             {q.options.map((opt) => {
               const letter = opt[0]
               const chosen = selected === letter
+              const locked = !!isSubmitted
+              const isCorrect = letter === q.answer
               return (
                 <button
                   key={letter}
-                  onClick={() => { if (!selected) set({ mutinyAnswers: { ...gs.mutinyAnswers, [gs.mutinyQ]: letter } }) }}
-                  disabled={!!selected}
+                  onClick={() => { if (!locked) set({ mutinyAnswers: { ...gs.mutinyAnswers, [gs.mutinyQ]: letter } }) }}
+                  disabled={locked}
                   className={`w-full text-left px-4 py-3 rounded-xl border text-sm font-medium transition-all ${
-                    chosen ? 'bg-brand-50 border-brand-400 text-brand-800' : 'border-gray-200 text-gray-700 hover:bg-gray-50 disabled:cursor-default'
+                    locked && isCorrect ? 'bg-emerald-50 border-emerald-400 text-emerald-800' :
+                    locked && chosen && !isCorrect ? 'bg-red-50 border-red-400 text-red-700' :
+                    locked ? 'border-gray-200 text-gray-400 cursor-default' :
+                    chosen ? 'bg-brand-50 border-brand-400 text-brand-800 ring-2 ring-brand-200' :
+                    'border-gray-200 text-gray-700 hover:bg-gray-50'
                   }`}
                 >
                   {opt}
@@ -391,11 +551,17 @@ export default function OdysseyGame() {
               )
             })}
           </div>
+          {selected && !isSubmitted && (
+            <p className="text-xs text-gray-400 italic text-center">You can change your answer before clicking Next.</p>
+          )}
           {selected && (
             <button
               onClick={() => {
-                if (isLast) set({ phase: 'mutiny-result' })
-                else set({ mutinyQ: gs.mutinyQ + 1 })
+                if (!isSubmitted) {
+                  const newSub = { ...(gs.mutinySubmitted ?? {}), [gs.mutinyQ]: true }
+                  if (isLast) set({ phase: 'mutiny-result', mutinySubmitted: newSub })
+                  else set({ mutinyQ: gs.mutinyQ + 1, mutinySubmitted: newSub })
+                }
               }}
               className="btn-primary"
             >
@@ -423,10 +589,7 @@ export default function OdysseyGame() {
             : "Some tension remains, but the journey must continue. Learn from this and lead with more wisdom next time."}
         </p>
         <p className="text-gray-500 text-sm">{score}/{MUTINY_QUESTIONS.length} correct leadership choices</p>
-        <button
-          onClick={() => set({ phase: 'map', mutinyDone: true })}
-          className="btn-primary mx-auto"
-        >
+        <button onClick={() => set({ phase: 'map', mutinyDone: true })} className="btn-primary mx-auto">
           🗺️ Return to Map
         </button>
       </div>
@@ -437,13 +600,20 @@ export default function OdysseyGame() {
   if (gs.phase === 'olympus') {
     const q = olympusQs[gs.olympusQ]
     const selected = gs.olympusAnswers[gs.olympusQ]
+    const isSubmitted = gs.olympusSubmitted?.[gs.olympusQ]
     const isLast = gs.olympusQ === olympusQs.length - 1
 
     return (
       <div className="max-w-2xl space-y-5 animate-fade-in">
         <div className="card bg-gradient-to-r from-brand-700 to-indigo-600 text-white">
-          <div className="text-3xl mb-1">🏛️ Mount Olympus Exam</div>
-          <p className="text-indigo-200 text-sm">The final trial. Score {OLYMPUS_PASS}/{olympusQs.length} or higher to enter the Academy.</p>
+          {/* Olympus illustration */}
+          <div className="font-mono text-center text-sm mb-2 opacity-70 select-none leading-tight">
+            <div>{'    '}⚡{'  '}🏛️{'  '}⚡</div>
+            <div>{'  '}{'╱‾‾‾‾‾‾‾‾‾╲'}</div>
+            <div>{'╱'}{'  '}OLYMPUS{'  '}{'╲'}</div>
+          </div>
+          <div className="text-2xl mb-1">🏛️ Mount Olympus Exam</div>
+          <p className="text-indigo-200 text-sm">Score {OLYMPUS_PASS}/{olympusQs.length} or higher to enter the Academy.</p>
           <div className="w-full bg-white/20 rounded-full h-1.5 mt-3">
             <div className="bg-white h-1.5 rounded-full transition-all" style={{ width: `${(gs.olympusQ / olympusQs.length) * 100}%` }} />
           </div>
@@ -457,13 +627,19 @@ export default function OdysseyGame() {
             {q.options.map((opt) => {
               const letter = opt[0]
               const chosen = selected === letter
+              const locked = !!isSubmitted
+              const isCorrect = letter === q.answer
               return (
                 <button
                   key={letter}
-                  onClick={() => { if (!selected) set({ olympusAnswers: { ...gs.olympusAnswers, [gs.olympusQ]: letter } }) }}
-                  disabled={!!selected}
+                  onClick={() => { if (!locked) set({ olympusAnswers: { ...gs.olympusAnswers, [gs.olympusQ]: letter } }) }}
+                  disabled={locked}
                   className={`w-full text-left px-4 py-3 rounded-xl border text-sm font-medium transition-all ${
-                    chosen ? 'bg-brand-50 border-brand-400 text-brand-800' : 'border-gray-200 text-gray-700 hover:bg-gray-50 disabled:cursor-default'
+                    locked && isCorrect ? 'bg-emerald-50 border-emerald-400 text-emerald-800' :
+                    locked && chosen && !isCorrect ? 'bg-red-50 border-red-400 text-red-700' :
+                    locked ? 'border-gray-200 text-gray-400 cursor-default' :
+                    chosen ? 'bg-brand-50 border-brand-400 text-brand-800 ring-2 ring-brand-200' :
+                    'border-gray-200 text-gray-700 hover:bg-gray-50'
                   }`}
                 >
                   {opt}
@@ -472,31 +648,45 @@ export default function OdysseyGame() {
             })}
           </div>
 
-          {/* Athena hint — only in normal mode */}
-          {!gs.hardMode && !selected && (
+          {selected && !isSubmitted && (
+            <p className="text-xs text-gray-400 italic text-center">You can change your answer before clicking Next.</p>
+          )}
+
+          {!gs.hardMode && !isSubmitted && (
             <button onClick={() => set({ showHint: !gs.showHint })} className="text-xs text-brand-500 hover:text-brand-700">
               🦉 {gs.showHint ? 'Hide hint' : 'Ask Athena for a hint'}
             </button>
           )}
-          {!gs.hardMode && gs.showHint && !selected && (
+          {!gs.hardMode && gs.showHint && !isSubmitted && (
             <div className="bg-amber-50 border border-amber-100 rounded-xl p-3 text-xs text-amber-800">
               🦉 <strong>Athena:</strong> {q.hint}
+            </div>
+          )}
+
+          {isSubmitted && (
+            <div className="bg-blue-50 border border-blue-100 rounded-xl p-3 text-xs text-blue-800">
+              <span className="font-semibold">📖 Correct answer:</span> {getAnswerText(q, q.answer)}
+              {!gs.hardMode && q.hint && <p className="mt-1 text-blue-600">🦉 {q.hint}</p>}
             </div>
           )}
 
           {selected && (
             <button
               onClick={() => {
-                if (isLast) {
-                  const score = Object.entries(gs.olympusAnswers).filter(([i, a]) => a === olympusQs[+i].answer).length
-                  const passed = score >= OLYMPUS_PASS
-                  set({ phase: passed ? 'win' : 'fail', showHint: false })
-                  if (passed && user && !gs.xpAwarded) {
-                    awardXP(user.id, gs.hardMode ? 200 : 100, 'olympus')
-                    set({ xpAwarded: true })
+                if (!isSubmitted) {
+                  const newSub = { ...(gs.olympusSubmitted ?? {}), [gs.olympusQ]: true }
+                  if (isLast) {
+                    const score = Object.entries({ ...gs.olympusAnswers, [gs.olympusQ]: selected })
+                      .filter(([i, a]) => a === olympusQs[+i].answer).length
+                    const passed = score >= OLYMPUS_PASS
+                    set({ phase: passed ? 'win' : 'fail', showHint: false, olympusSubmitted: newSub })
+                    if (passed && user && !gs.xpAwarded) {
+                      awardXP(user.id, gs.hardMode ? 200 : 100, 'olympus')
+                      set({ xpAwarded: true })
+                    }
+                  } else {
+                    set({ olympusQ: gs.olympusQ + 1, showHint: false, olympusSubmitted: newSub })
                   }
-                } else {
-                  set({ olympusQ: gs.olympusQ + 1, showHint: false })
                 }
               }}
               className="btn-primary"
@@ -514,7 +704,14 @@ export default function OdysseyGame() {
     const score = getOlympusScore()
     return (
       <div className="max-w-xl mx-auto text-center space-y-6 animate-fade-in">
-        <div className="text-7xl">🏛️</div>
+        {/* Win illustration */}
+        <div className="font-mono text-center text-base select-none bg-gradient-to-b from-amber-50 to-yellow-50 rounded-2xl py-4 border border-amber-100">
+          <div className="text-2xl">⚡{'  '}⭐{'  '}⚡</div>
+          <div className="text-4xl my-1">🏛️</div>
+          <div className="text-lg text-amber-600 font-bold">OLYMPUS ACADEMY</div>
+          <div className="text-sm text-amber-400">✨ Gates Open ✨</div>
+          <div className="text-2xl mt-1">🎉{'  '}🏆{'  '}🎉</div>
+        </div>
         <h1 className="text-3xl font-bold text-gray-900">
           {gs.hardMode ? '⚡ Legend of Olympus!' : '🎉 You Made It!'}
         </h1>
@@ -524,7 +721,6 @@ export default function OdysseyGame() {
             : "The gates of Mount Olympus Academy open wide. The gods applaud as you walk through. Back home, Nanay Penelope wipes tears of joy, and little Telemo runs to embrace you. You did it."}
         </p>
         <p className="text-2xl font-bold text-brand-600">{score}/{olympusQs.length} correct ✨ {gs.hardMode ? '+200 XP' : '+100 XP'}</p>
-
         <div className="bg-gradient-to-r from-amber-100 to-yellow-100 rounded-2xl p-6 border border-amber-200">
           <p className="text-2xl mb-2">👨‍👩‍👦</p>
           <p className="text-sm text-amber-800 font-medium italic">
@@ -532,7 +728,6 @@ export default function OdysseyGame() {
             <span className="text-xs text-amber-600">(A person with knowledge has power.)</span>
           </p>
         </div>
-
         {!gs.hardMode && (
           <button
             onClick={() => set({ phase: 'hard-intro', hardMode: true, completedIslands: [], mutinyDone: false, currentIsland: null, xpAwarded: false })}
@@ -554,30 +749,32 @@ export default function OdysseyGame() {
     const needsTraining = gs.hardMode
     return (
       <div className="max-w-xl mx-auto text-center space-y-5 animate-fade-in">
-        <div className="text-7xl">🌊</div>
+        {/* Fail illustration */}
+        <div className="font-mono text-center text-base select-none bg-blue-50 rounded-2xl py-4 border border-blue-100">
+          <div className="text-3xl">🌊🌊🌊</div>
+          <div className="text-2xl text-gray-400 my-1">⛵💧</div>
+          <div className="text-sm text-blue-400">The storm has passed...</div>
+          <div className="text-xs text-gray-400 mt-1">but the journey isn't over</div>
+        </div>
         <h1 className="text-2xl font-bold text-gray-900">Not This Time, Odysseus...</h1>
         <p className="text-gray-600">
           Mount Olympus falls silent. The gates remain closed. But back home, Nanay Penelope watches the door, and little Telemo clutches your photo close.
           They still believe in you. <strong>So do we.</strong>
         </p>
         <p className="text-lg font-bold text-gray-700">{score}/{olympusQs.length} — Need {OLYMPUS_PASS} to pass</p>
-
         {needsTraining ? (
           <div className="card bg-amber-50 border-amber-200 space-y-3">
             <p className="text-amber-800 font-semibold">🦉 Athena appears before you...</p>
             <p className="text-sm text-amber-700">
               "Young Odysseus, you have failed the hard trial. But I will train you for 7 days. 30 minutes a day. When you are ready, you may challenge Olympus again."
             </p>
-            <button onClick={() => set({ phase: 'training', trainingDay: 0, trainingQ: 0, trainingAnswers: {}, trainingDaysComplete: [] })} className="btn-primary w-full justify-center">
+            <button onClick={() => set({ phase: 'training', trainingDay: 0, trainingQ: 0, trainingAnswers: {}, trainingSubmitted: {}, trainingDaysComplete: [] })} className="btn-primary w-full justify-center">
               🦉 Begin Athena's Training
             </button>
           </div>
         ) : (
           <div className="flex flex-col gap-3 w-48 mx-auto">
-            <button
-              onClick={() => set({ ...INIT, hardMode: false })}
-              className="btn-primary justify-center"
-            >
+            <button onClick={() => set({ ...INIT, hardMode: false })} className="btn-primary justify-center">
               ⚓ Begin Again
             </button>
             <p className="text-xs text-gray-400">New questions await on your next journey.</p>
@@ -590,7 +787,11 @@ export default function OdysseyGame() {
   // ── HARD MODE INTRO ──────────────────────────────────────────────────────
   if (gs.phase === 'hard-intro') return (
     <div className="max-w-xl mx-auto card text-center space-y-4 animate-fade-in">
-      <div className="text-5xl">⚡</div>
+      <div className="font-mono text-center text-base select-none bg-gray-900 text-yellow-400 rounded-xl py-4">
+        <div>⚡{'   '}⚡{'   '}⚡</div>
+        <div className="text-xl font-bold my-1">HARD MODE</div>
+        <div className="text-sm">The gods grow impatient.</div>
+      </div>
       <h2 className="text-2xl font-bold text-gray-900">Hard Mode Unlocked</h2>
       <div className="text-left bg-gray-50 rounded-xl p-4 text-sm text-gray-700 space-y-2">
         <p>⚡ Harder questions — the gods are less forgiving</p>
@@ -613,7 +814,11 @@ export default function OdysseyGame() {
 
     if (allTrainingDone) return (
       <div className="max-w-xl mx-auto card text-center space-y-4 animate-fade-in">
-        <div className="text-5xl">🦉</div>
+        <div className="font-mono text-center text-base select-none bg-amber-50 rounded-xl py-3">
+          <div>🦉{'  '}✨{'  '}🦉</div>
+          <div className="text-amber-600 font-bold">TRAINING COMPLETE</div>
+          <div>{'✓ '.repeat(daysNeeded)}</div>
+        </div>
         <h2 className="text-xl font-bold text-gray-900">Training Complete!</h2>
         <p className="text-gray-600">Athena nods with approval. "You are ready, young scholar. Return to Olympus."</p>
         <div className="flex gap-2 justify-center">
@@ -621,16 +826,16 @@ export default function OdysseyGame() {
             <div key={i} className="w-8 h-8 rounded-full bg-brand-600 text-white text-xs flex items-center justify-center font-bold">✓</div>
           ))}
         </div>
-        <button onClick={() => set({ phase: 'map', completedIslands: ISLANDS.map(i => i.id), mutinyDone: true, olympusQ: 0, olympusAnswers: {}, xpAwarded: false })} className="btn-primary mx-auto">
+        <button onClick={() => set({ phase: 'map', completedIslands: ISLANDS.map(i => i.id), mutinyDone: true, olympusQ: 0, olympusAnswers: {}, olympusSubmitted: {}, xpAwarded: false })} className="btn-primary mx-auto">
           🏛️ Challenge Olympus Again
         </button>
       </div>
     )
 
-    // Training session
     const trainingQs = TRAINING_QUESTIONS.slice(0, 10)
     const tq = trainingQs[gs.trainingQ]
     const tSelected = gs.trainingAnswers[gs.trainingQ]
+    const tSubmitted = gs.trainingSubmitted?.[gs.trainingQ]
     const isLast = gs.trainingQ === trainingQs.length - 1
 
     return (
@@ -654,18 +859,19 @@ export default function OdysseyGame() {
             {tq.options.map((opt) => {
               const letter = opt[0]
               const chosen = tSelected === letter
-              const showResult = !!tSelected
+              const locked = !!tSubmitted
               const isCorrect = letter === tq.answer
               return (
                 <button
                   key={letter}
-                  onClick={() => { if (!tSelected) set({ trainingAnswers: { ...gs.trainingAnswers, [gs.trainingQ]: letter } }) }}
-                  disabled={!!tSelected}
+                  onClick={() => { if (!locked) set({ trainingAnswers: { ...gs.trainingAnswers, [gs.trainingQ]: letter } }) }}
+                  disabled={locked}
                   className={`w-full text-left px-4 py-3 rounded-xl border text-sm font-medium transition-all ${
-                    showResult && isCorrect ? 'bg-emerald-50 border-emerald-400 text-emerald-800' :
-                    showResult && chosen && !isCorrect ? 'bg-red-50 border-red-400 text-red-700' :
-                    chosen ? 'bg-brand-50 border-brand-400' :
-                    'border-gray-200 text-gray-700 hover:bg-gray-50 disabled:cursor-default'
+                    locked && isCorrect ? 'bg-emerald-50 border-emerald-400 text-emerald-800' :
+                    locked && chosen && !isCorrect ? 'bg-red-50 border-red-400 text-red-700' :
+                    locked ? 'border-gray-200 text-gray-400 cursor-default' :
+                    chosen ? 'bg-brand-50 border-brand-400 ring-2 ring-brand-200' :
+                    'border-gray-200 text-gray-700 hover:bg-gray-50'
                   }`}
                 >
                   {opt}
@@ -674,19 +880,27 @@ export default function OdysseyGame() {
             })}
           </div>
 
-          {tSelected && (
+          {tSelected && !tSubmitted && (
+            <p className="text-xs text-gray-400 italic text-center">You can change your answer before clicking Next.</p>
+          )}
+
+          {tSubmitted && (
             <div className="bg-amber-50 border border-amber-100 rounded-xl p-3 text-xs text-amber-800">
-              🦉 <strong>Athena:</strong> {tq.hint}
+              📖 <strong>Correct answer:</strong> {getAnswerText(tq, tq.answer)}
+              {tq.hint && <p className="mt-1">🦉 <strong>Athena:</strong> {tq.hint}</p>}
             </div>
           )}
 
           {tSelected && (
             <button
               onClick={() => {
-                if (isLast) {
-                  set({ trainingDaysComplete: [...gs.trainingDaysComplete, daysDone], trainingQ: 0, trainingAnswers: {} })
-                } else {
-                  set({ trainingQ: gs.trainingQ + 1 })
+                if (!tSubmitted) {
+                  const newSub = { ...(gs.trainingSubmitted ?? {}), [gs.trainingQ]: true }
+                  if (isLast) {
+                    set({ trainingDaysComplete: [...gs.trainingDaysComplete, daysDone], trainingQ: 0, trainingAnswers: {}, trainingSubmitted: {} })
+                  } else {
+                    set({ trainingQ: gs.trainingQ + 1, trainingSubmitted: newSub })
+                  }
                 }
               }}
               className="btn-primary"
