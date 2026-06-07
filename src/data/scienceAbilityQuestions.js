@@ -160,6 +160,92 @@ const SCIENCE_ABILITY_QUESTIONS = [
     answer: 'C',
     explanation: 'The independent variable is the one the scientist deliberately manipulates (changes). Fertilizer concentration is being changed → it is the independent variable. The plant growth outcome would be the dependent variable. All other factors kept the same are controlled variables.',
   },
+  // ── Q14–Q20 from NCE Test III (pages 26–27) ─────────────────────────────────
+  {
+    id: 'sa-14', subject: 'Science',
+    question: 'A distance-time graph shows a battery-powered car moving at a steady pace — the line is perfectly straight with a positive slope. Which of the following correctly describes the car\'s speed based on the graph?',
+    options: [
+      'A. Zero — the car is not moving',
+      'B. Constant — the car moves the same distance every second',
+      'C. Negative — the car is moving backwards',
+      'D. Increasing — the car accelerates over time',
+      'E. Decreasing — the car is slowing down',
+    ],
+    answer: 'B',
+    explanation: 'A straight (linear) line on a distance-time graph means the car covers equal distances in equal time intervals → constant speed. A curved line would indicate acceleration or deceleration. A horizontal line means the car is stopped (zero speed).',
+  },
+  {
+    id: 'sa-15', subject: 'Science',
+    question: 'A coastal diagram shows mangroves, seagrass, and coral reefs in a sequence from shore to sea. Environmentalists say planting more mangroves may protect coral reefs from degradation. How do mangroves most likely protect coral reefs?',
+    options: [
+      'A. They provide shade for the corals and prevent them from overheating.',
+      'B. They attract more fish to the area, which feed on algae that harm the coral.',
+      'C. They filter pollutants from the water and improve the water quality for the corals.',
+      'D. They release chemicals that directly protect the corals from diseases and predators.',
+      'E. They act as natural barriers and break the force of waves before they reach the reefs.',
+    ],
+    answer: 'C',
+    explanation: 'Mangroves are known for their water filtration role: their root systems trap sediments and absorb pollutants before the water reaches the coral reef. Improved water quality (lower turbidity, fewer toxins) allows corals to thrive. While mangroves also buffer waves (E), the primary mechanism of reef protection in scientific research is water quality improvement.',
+  },
+  {
+    id: 'sa-16', subject: 'Science',
+    question: 'A climate graph shows global surface temperature from 1940–2016 compared to the 1981–2010 average. The years of three volcanic eruptions are marked: Mt. Agung, El Chichón, and Mt. Pinatubo. After each eruption, the global temperature dips below average. How did volcanic ash from these eruptions affect global temperatures?',
+    options: [
+      'A. Increase in global temperature due to the greenhouse effect of ash',
+      'B. No significant change — the ash settles quickly',
+      'C. Melting of glaciers due to ash absorbing heat',
+      'D. Short-term cooling effect due to reduced sunlight reaching Earth',
+      'E. Warming of coastal regions due to increased absorption of sunlight by oceans',
+    ],
+    answer: 'D',
+    explanation: 'Volcanic ash and sulfur dioxide injected into the stratosphere reflect incoming solar radiation back into space. This reduces the amount of sunlight reaching Earth\'s surface, causing a short-term global cooling effect. Mt. Pinatubo (1991) lowered global temperatures by ~0.5°C for about 1–2 years.',
+  },
+  {
+    id: 'sa-17', subject: 'Science',
+    question: 'During a particular night, the Moon was observed as a first quarter moon (right half illuminated). The lunar cycle is approximately 29.5 days. What will the Moon most likely look like 4 weeks (28 days) later, viewed from the same position?',
+    options: [
+      'A. Full moon — completely illuminated',
+      'B. Waxing gibbous — more than half lit on the right',
+      'C. First quarter — same right-half illuminated (same phase)',
+      'D. Waxing crescent — thin sliver of light on the right',
+      'E. New moon — completely dark',
+    ],
+    answer: 'D',
+    explanation: 'First quarter occurs ~7 days into the lunar cycle. After 28 more days: day 7 + 28 = day 35 of the cycle. 35 mod 29.5 ≈ 5.5 days after new moon = waxing crescent phase. Since 28 days falls 1.5 days short of a full cycle (29.5 days), the moon hasn\'t quite returned to first quarter — it\'s still a waxing crescent.',
+  },
+  {
+    id: 'sa-18', subject: 'Science',
+    question: 'A graph shows the amounts of carbohydrates, fat, and protein stored in the body during weeks of starvation. Carbohydrates drop sharply in the first 1–2 weeks, fat decreases gradually over weeks 3–10, and protein begins decreasing last. Which is a valid inference from this data?',
+    options: [
+      'A. Fat levels in the body decrease at a constant rate during starvation.',
+      'B. Starving yourself for weeks will make you lose weight.',
+      'C. Protein levels are the last to decrease during starvation.',
+      'D. Starving will not affect your nutrient levels during the first month.',
+      'E. Carbohydrates are depleted first because they are the least important.',
+    ],
+    answer: 'C',
+    explanation: 'Based on the graph, carbohydrates are used first, followed by fat, then protein. Protein is the body\'s last resort energy source because it comes from breaking down muscle tissue. This is directly supported by the data — making C the valid inference. Option E is partially true but gives a wrong reason (carbs are primary fuel, not "least important").',
+  },
+  {
+    id: 'sa-19', subject: 'Science',
+    question: 'A roller coaster starts from rest at Location 1 (highest point), moves through Location 2 (midpoint), and reaches Location 3 (lowest point). Potential energy is greatest at the highest position; kinetic energy depends on speed. Which statement correctly describes energy at specific locations?',
+    options: [
+      'A. Kinetic energy is greatest at Location 1.',
+      'B. Kinetic energy is zero at Location 3.',
+      'C. Potential energy is greatest at Location 1.',
+      'D. Potential energy increases as the cart moves down the track.',
+      'E. Potential and kinetic energies cannot be determined at these locations.',
+    ],
+    answer: 'C',
+    explanation: 'Location 1 (top) = highest position = maximum gravitational potential energy (PE). The cart starts from rest, so KE = 0 at Location 1. As it descends, PE converts to KE. At Location 3 (bottom), PE is minimum and KE is maximum. Therefore, PE is greatest at Location 1 — answer C.',
+  },
+  {
+    id: 'sa-20', subject: 'Science',
+    question: 'Delfin poured different liquids into a glass tube and five layers formed (labeled 1–5, bottom to top). Densities: Corn syrup = 1.3 g/mL, Honey = 1.4 g/mL, Rubbing alcohol = 0.8 g/mL, Vegetable oil = 0.9 g/mL, Water = 1.0 g/mL. Which layer corresponds to water?',
+    options: ['A. Layer 1', 'B. Layer 2', 'C. Layer 3', 'D. Layer 4', 'E. Layer 5'],
+    answer: 'C',
+    explanation: 'Liquids settle with densest at the bottom. Order from bottom (1) to top (5): Layer 1 = Honey (1.4), Layer 2 = Corn syrup (1.3), Layer 3 = Water (1.0), Layer 4 = Vegetable oil (0.9), Layer 5 = Rubbing alcohol (0.8). Water is Layer 3.',
+  },
 ]
 
 export default SCIENCE_ABILITY_QUESTIONS
