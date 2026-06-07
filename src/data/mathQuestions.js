@@ -115,6 +115,15 @@ const MATH_QUESTIONS = [
   },
 ]
 
+// Q20 from Test 1
+MATH_QUESTIONS.push({
+  id: 'math-16', subject: 'Math',
+  question: 'Figures 1–4 show a pattern of square tiles where shaded tiles form a border. Figure 1 has 8 shaded tiles, Figure 2 has 12, Figure 3 has 16, Figure 4 has 20. How many shaded tiles will there be in the 10th figure?',
+  options: ['A. 36', 'B. 40', 'C. 44', 'D. 81', 'E. 100'],
+  answer: 'C',
+  explanation: 'Pattern: Figure n = (n+2)² − n² = 4n + 4 shaded tiles. For n=10: 4(10) + 4 = 44 shaded tiles.',
+})
+
 export default MATH_QUESTIONS
 
 export function getMathQuestions(n) {

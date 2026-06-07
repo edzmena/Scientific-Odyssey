@@ -314,6 +314,6 @@ export function getFullExam() {
   )
 }
 
-export const SUBJECTS = ['Biology', 'Chemistry', 'Physics', 'Earth Science', 'Math']
+export const SUBJECTS = ['Biology', 'Chemistry', 'Physics', 'Earth Science', 'Math', 'English']
 
 export default QUESTIONS
