@@ -190,6 +190,94 @@ const VERBAL_QUESTIONS = [
     answer: 'A',
     explanation: 'Logical order: (2) Wanted to plant → (1) Cleared the area → (4) Dug holes → (3) Placed seeds → (6) Watered → (5) Put up fence. Order: 2-1-4-3-6-5.',
   },
+  // ── READING COMPREHENSION: "Doll Eyes" (passage included in question) ──────
+  {
+    id: 'va-24', subject: 'English',
+    question: 'Read this excerpt from "Doll Eyes": A street urchin saw an old woman in a doll shop. The woman\'s eyes resembled those of her glass dolls — blank and observant. She beckoned the child inside with a crooked smile. Inside, the dolls seemed to watch in silence. The doll-maker\'s brand of magic was the sinister kind.\n\nBased on the sinister tone of the story, what would most likely happen to the little girl?',
+    options: [
+      'A. She would be sold to a syndicate.',
+      'B. She would be turned over by the doll-maker to the DSWD.',
+      'C. She would be given a doll by the doll-maker from her collection.',
+      'D. She would be turned into one of the hidden dolls by the doll-maker.',
+      'E. She would be adopted by the doll-maker and made an apprentice.',
+    ],
+    answer: 'D',
+    explanation: 'The passage establishes a sinister atmosphere with glass-eyed dolls, a mysterious doll-maker, and "the sinister kind of magic." The most ominous and logically consistent outcome — given the horror/dark fairy-tale tone — is that the girl would be transformed into one of the dolls.',
+  },
+  {
+    id: 'va-25', subject: 'English',
+    question: '"Mood" is the overall atmosphere or feeling created by a story. In the "Doll Eyes" excerpt — with blank glass eyes, a crooked smile, watching dolls, and "sinister magic" — which word most strongly sets the story\'s mood?',
+    options: ['A. alone', 'B. arcane', 'C. sinister', 'D. mundane', 'E. marvelous'],
+    answer: 'C',
+    explanation: '"Sinister" is directly used in the passage and means threatening, ominous, or evil. It best encapsulates the dark, foreboding atmosphere. "Arcane" means secret/mysterious but is not as strong. "Mundane" means ordinary — the opposite. "Marvelous" is positive.',
+  },
+  {
+    id: 'va-26', subject: 'English',
+    question: 'In the "Doll Eyes" excerpt, the doll-maker appears friendly but hides a sinister nature. The dolls look ordinary but are somehow unsettling. What is the story\'s most likely central message?',
+    options: [
+      'A. Materialism conquers the innocent.',
+      'B. Things are not always as they seem.',
+      'C. Be careful when talking to strangers.',
+      'D. Children should be protected by adults.',
+      'E. When people show you who they are, believe them.',
+    ],
+    answer: 'B',
+    explanation: 'The central irony — ordinary-looking dolls with sinister secrets, a friendly-seeming old woman with dark magic — points to the theme "things are not always as they seem." While C is practical advice, the passage\'s literary message is broader about hidden truths.',
+  },
+  // ── READING COMPREHENSION: Industrial Revolution passage ──────────────────
+  {
+    id: 'va-27', subject: 'English',
+    question: 'Passage: "The Industrial Revolution began in Britain in the late 18th century. James Watt\'s improved steam engine (c. 1755) powered factories and changed transportation. Increased mechanization led to the growth of factories and urbanization as people migrated from rural areas to cities in search of employment."\n\nWhat is the meaning of "urbanization" as used in the passage?',
+    options: [
+      'A. Agricultural advancement in rural areas',
+      'B. Expansion of cities as people move into them',
+      'C. Migration of people away from cities',
+      'D. Development of rural communities',
+      'E. Invention of new technologies',
+    ],
+    answer: 'B',
+    explanation: 'The passage states urbanization occurred "as people migrated from rural areas to cities." Urbanization = the process of cities growing and expanding as population moves into them. It is caused by migration but is itself the expansion/growth of urban areas.',
+  },
+  {
+    id: 'va-28', subject: 'English',
+    question: 'Using the same Industrial Revolution passage: "The steam engine powered new locomotives, and train travel connected cities across the country, transforming how goods and people moved."\n\nWhat does the passage imply about the impact of the steam engine on transportation?',
+    options: [
+      'A. Use of horse-drawn carriages increased.',
+      'B. Transportation between cities remained unchanged.',
+      'C. People began migrating away from industrial cities.',
+      'D. Travel became faster and more efficient.',
+      'E. Factory profits decreased due to transportation costs.',
+    ],
+    answer: 'D',
+    explanation: 'The passage states the steam engine powered locomotives that "transformed how goods and people moved" by connecting cities. This clearly implies transportation became faster and more efficient — the core implication of rail-connected cities.',
+  },
+  // ── READING COMPREHENSION: Library passage ────────────────────────────────
+  {
+    id: 'va-29', subject: 'English',
+    question: 'Passage: "Marilou loved to spend her weekends at the local library. She would explore various genres — from science fiction to historical novels — and always left with a stack of books. The library was her favorite place to learn and dream."\n\nComplete the sentence: "Marilou loved to spend her weekends ______."',
+    options: [
+      'A. above the library',
+      'B. around the library',
+      'C. beside the library',
+      'D. in the library',
+      'E. on the library',
+    ],
+    answer: 'D',
+    explanation: '"In the library" is the correct preposition for being inside a building. "At the library" (location) and "in the library" (inside) are both grammatically correct, but the passage later says she explores genres there, so she is physically inside — making "in" the best fit.',
+  },
+  {
+    id: 'va-30', subject: 'English',
+    question: 'Using the same library passage about Marilou: she explores science fiction, historical novels, and other genres, always leaving with a stack of books. Why does Marilou enjoy spending time at the library?',
+    options: [
+      'A. Because she has a lot of free time on weekends.',
+      'B. Because she wants to be alone and away from people.',
+      'C. Because she enjoys exploring different kinds of books.',
+      'D. Because she needs to review and study for school.',
+      'E. Because she likes to stay in a quiet place.',
+    ],
+    answer: 'C',
+    explanation: 'The passage directly states Marilou "would explore various genres" — from science fiction to historical novels. This is explicitly why she enjoys the library: she loves discovering and reading different types of books. Options A, B, D, and E are not stated in the passage.',
+  },
 ]
 
 export default VERBAL_QUESTIONS
