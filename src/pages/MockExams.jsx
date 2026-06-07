@@ -76,6 +76,68 @@ export default function MockExams() {
           <p className="text-gray-500 text-sm mt-1">PSHS-style multiple-choice questions — choose a subject or take the full exam.</p>
         </div>
 
+        {/* Test-Taking Skills Strategies — from page 1 of the official NCE Reviewer */}
+        <details className="card group">
+          <summary className="cursor-pointer font-bold text-gray-900 list-none flex items-center justify-between">
+            <span>🧭 Test-Taking Skills Strategies <span className="text-xs font-normal text-gray-400">(NCE Reviewer, p.1)</span></span>
+            <span className="text-gray-400 text-sm group-open:rotate-180 transition-transform">▾</span>
+          </summary>
+          <div className="mt-4 text-sm text-gray-600 space-y-4 leading-relaxed">
+            <p>Having effective skills is essential to improve your examination performance and achieve good results. Below are strategic approaches to boost your chances of passing the test:</p>
+
+            <div>
+              <p className="font-semibold text-gray-800">1. Preparation for taking the NCE</p>
+              <ul className="list-disc list-inside ml-2 space-y-1 mt-1">
+                <li><strong>Study Plan</strong> — Organize your study by creating a plan. Understand the main concepts of the subjects covered.</li>
+                <li><strong>Study Time</strong> — Allocate sufficient time for each subject. Avoid the urge to stay up late or cram the night before the examination.</li>
+              </ul>
+            </div>
+
+            <div>
+              <p className="font-semibold text-gray-800">2. Practice Answering Test Questions</p>
+              <ul className="list-disc list-inside ml-2 space-y-1 mt-1">
+                <li><strong>Question Analysis</strong> — Read the questions carefully before providing an answer. Understanding the question structure and considering the expected type of answer can be helpful.</li>
+                <li><strong>Matching Concepts</strong> — Whenever possible, align each answer with their relevance on the primary idea of the corresponding subject.</li>
+              </ul>
+            </div>
+
+            <div>
+              <p className="font-semibold text-gray-800">3. Test Research</p>
+              <ul className="list-disc list-inside ml-2 space-y-1 mt-1">
+                <li><strong>Understanding Test Type</strong> — Identify the specific test format, whether it will be multiple-choice, true or false, essay, etc. Familiarize yourself with the test structures to enhance your comfort level during the examination.</li>
+                <li><strong>Practice with Sample Questions</strong> — Engage with this reviewer to be familiar with the test style.</li>
+              </ul>
+            </div>
+
+            <div>
+              <p className="font-semibold text-gray-800">4. Time Tactics</p>
+              <ul className="list-disc list-inside ml-2 space-y-1 mt-1">
+                <li><strong>Time Management</strong> — Know the allocated time for each part of the test. Avoid rushing and ensure ample time for every question or section.</li>
+                <li><strong>Start with the Easy Parts</strong> — To maximize time utilization, begin by tackling questions that you find easier. This minimizes the risk of spending excessive time on more challenging sections.</li>
+              </ul>
+            </div>
+
+            <div>
+              <p className="font-semibold text-gray-800">5. Focus on the Details</p>
+              <ul className="list-disc list-inside ml-2 space-y-1 mt-1">
+                <li><strong>Read Carefully</strong> — Scrutinize questions thoroughly and respond accurately. Ensure a clear understanding of each question before providing your answer.</li>
+                <li><strong>Proofreading</strong> — If time permits, dedicate a moment to review and verify your answers before submission.</li>
+              </ul>
+            </div>
+
+            <div>
+              <p className="font-semibold text-gray-800">6. Stay Calm and Confident</p>
+              <ul className="list-disc list-inside ml-2 space-y-1 mt-1">
+                <li><strong>Breathing</strong> — When you feel too nervous, take deep breaths to stay calm.</li>
+                <li><strong>Positive Outlook</strong> — Avoid succumbing to negative thoughts. Believe in yourself and in your preparation.</li>
+              </ul>
+            </div>
+
+            <p>By using these strategies, you can improve your test-taking abilities and ensure good results.</p>
+            <p className="font-semibold text-gray-700">Good luck! — Admissions Office, DOST–PSHS System</p>
+          </div>
+        </details>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {['full', ...SUBJECTS, 'NCE Science', 'Abstract Reasoning'].map((type) => (
             <button
