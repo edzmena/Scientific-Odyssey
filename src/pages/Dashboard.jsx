@@ -12,7 +12,7 @@ const CARDS = [
 
 export default function Dashboard() {
   const { user, profile, examAttempts } = useStore()
-  const name = profile?.full_name ?? user?.email ?? 'Explorer'
+  const name = profile?.full_name || user?.user_metadata?.full_name || (user?.email ? user.email.split('@')[0] : 'Explorer')
   const firstName = name.split(' ')[0]
   const xpData = profile ? getXPProgress(profile.xp ?? 0) : null
 

@@ -48,6 +48,17 @@ const useStore = create((set, get) => ({
 
     if (error || !profile) { set({ loading: false }); return }
 
+    // Backfill full_name from auth metadata if the profile row is missing it
+    // (e.g., accounts created before the signup flow saved it to `profiles`)
+    if (!profile.full_name) {
+      const { data: { user: authUser } = {} } = await supabase.auth.getUser()
+      const metaName = authUser?.user_metadata?.full_name
+      if (metaName) {
+        await supabase.from('profiles').update({ full_name: metaName }).eq('id', userId)
+        profile.full_name = metaName
+      }
+    }
+
     // Streak logic
     let { streak = 1, last_active } = profile
     const today = new Date().toISOString().split('T')[0]
