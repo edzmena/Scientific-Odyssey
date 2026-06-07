@@ -46,7 +46,7 @@ const useStore = create((set, get) => ({
       .eq('id', userId)
       .single()
 
-    if (error || !profile) return
+    if (error || !profile) { set({ loading: false }); return }
 
     // Streak logic
     let { streak = 1, last_active } = profile

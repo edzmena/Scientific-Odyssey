@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import useStore from '@/store/useStore'
 import { getQuestionsBySubject, getFullExam, SUBJECTS } from '@/data/questions'
+import MATH_QUESTIONS from '@/data/mathQuestions'
 import CountdownTimer from '@/components/exam/CountdownTimer'
 import NavigationDots from '@/components/exam/NavigationDots'
 
@@ -18,7 +19,10 @@ export default function MockExams() {
   const [xpEarned, setXpEarned] = useState(0)
 
   function startExam() {
-    const qs = examType === 'full' ? getFullExam() : getQuestionsBySubject(examType)
+    let qs
+    if (examType === 'full') qs = getFullExam()
+    else if (examType === 'Math') qs = [...MATH_QUESTIONS].sort(() => Math.random() - 0.5).slice(0, 15)
+    else qs = getQuestionsBySubject(examType)
     setQuestions(qs)
     setAnswers({})
     setCurrent(0)
@@ -58,9 +62,15 @@ export default function MockExams() {
                 examType === type ? 'border-brand-400 ring-2 ring-brand-200' : ''
               }`}
             >
-              <p className="font-semibold text-gray-900">{type === 'full' ? '🔬 Full Exam (40 questions)' : `🧪 ${type} (10 questions)`}</p>
+              <p className="font-semibold text-gray-900">
+                {type === 'full' ? '🔬 Full Exam (40 questions)' : type === 'Math' ? `📐 Math / Quantitative (15 questions)` : `🧪 ${type} (10 questions)`}
+              </p>
               <p className="text-xs text-gray-500 mt-1">
-                {type === 'full' ? '10 questions per subject · 50 minutes' : `15 minutes · ${type} only`}
+                {type === 'full'
+                  ? '10 questions per subject · 50 minutes'
+                  : type === 'Math'
+                  ? '15 NCE-style quantitative questions · 25 minutes'
+                  : `15 minutes · ${type} only`}
               </p>
             </button>
           ))}
@@ -79,8 +89,8 @@ export default function MockExams() {
             {examType === 'full' ? 'Full Science Exam' : `${examType} Quiz`}
           </h2>
           <div className="text-sm text-gray-500 space-y-1">
-            <p>Questions: <strong className="text-gray-800">{examType === 'full' ? 40 : 10}</strong></p>
-            <p>Time limit: <strong className="text-gray-800">{examType === 'full' ? '50 minutes' : '15 minutes'}</strong></p>
+            <p>Questions: <strong className="text-gray-800">{examType === 'full' ? 40 : examType === 'Math' ? 15 : 10}</strong></p>
+            <p>Time limit: <strong className="text-gray-800">{examType === 'full' ? '50 minutes' : examType === 'Math' ? '25 minutes' : '15 minutes'}</strong></p>
             <p>XP reward: <strong className="text-amber-600">20–75 XP</strong> based on score</p>
           </div>
           <div className="flex gap-3 justify-center pt-2">
@@ -95,7 +105,7 @@ export default function MockExams() {
   // ── EXAM PHASE ────────────────────────────────────────────────────────────
   if (phase === 'exam') {
     const q = questions[current]
-    const totalTime = examType === 'full' ? EXAM_TIME : 15 * 60
+    const totalTime = examType === 'full' ? EXAM_TIME : examType === 'Math' ? 25 * 60 : 15 * 60
     const answered = new Set(Object.keys(answers).map(Number))
 
     return (
