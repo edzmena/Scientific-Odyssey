@@ -53,7 +53,7 @@ export default function Auth() {
             <img src={logo} alt="Scientific Odyssey logo" className="w-full h-full object-cover" />
           </div>
           <h1 className="text-2xl font-bold text-gray-900">Scientific Odyssey</h1>
-          <p className="text-sm text-gray-500 mt-1">Grade 6 Science Exam Prep · PH</p>
+          <p className="text-sm text-gray-500 mt-1">Grade 7 Science High School Prep</p>
         </div>
 
         <div className="card">
