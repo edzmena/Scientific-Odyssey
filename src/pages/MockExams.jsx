@@ -5,6 +5,8 @@ import MATH_QUESTIONS from '@/data/mathQuestions'
 import VERBAL_QUESTIONS from '@/data/verbalQuestions'
 import SCIENCE_ABILITY_QUESTIONS from '@/data/scienceAbilityQuestions'
 import ABSTRACT_REASONING_QUESTIONS from '@/data/abstractReasoningQuestions'
+import VISUAL_REASONING_QUESTIONS from '@/data/visualReasoningQuestions'
+import VisualReasoningItem from '@/components/VisualReasoningItem'
 import CountdownTimer from '@/components/exam/CountdownTimer'
 import NavigationDots from '@/components/exam/NavigationDots'
 import { pickQuestions } from '@/utils/questionHistory'
@@ -23,8 +25,9 @@ function getHundredQuestionExam(userId) {
   const math = pickQuestions(userId, MATH_QUESTIONS, 14)
   const verbal = pickQuestions(userId, VERBAL_QUESTIONS, 20)
   const scienceAbility = pickQuestions(userId, SCIENCE_ABILITY_QUESTIONS, 16)
-  const abstractReasoning = pickQuestions(userId, ABSTRACT_REASONING_QUESTIONS, 18)
-  return shuffle([...sciences, ...math, ...verbal, ...scienceAbility, ...abstractReasoning])
+  const abstractReasoning = pickQuestions(userId, ABSTRACT_REASONING_QUESTIONS, 12)
+  const visualReasoning = pickQuestions(userId, VISUAL_REASONING_QUESTIONS, 6)
+  return shuffle([...sciences, ...math, ...verbal, ...scienceAbility, ...abstractReasoning, ...visualReasoning])
 }
 
 export default function MockExams() {
@@ -45,6 +48,7 @@ export default function MockExams() {
     else if (examType === 'English') qs = pickQuestions(user?.id, VERBAL_QUESTIONS, 20)
     else if (examType === 'NCE Science') qs = pickQuestions(user?.id, SCIENCE_ABILITY_QUESTIONS, 20)
     else if (examType === 'Abstract Reasoning') qs = pickQuestions(user?.id, ABSTRACT_REASONING_QUESTIONS, 20)
+    else if (examType === 'Visual Reasoning') qs = pickQuestions(user?.id, VISUAL_REASONING_QUESTIONS, 8)
     else qs = pickQuestions(user?.id, getQuestionsBySubject(examType), 10)
     setQuestions(qs)
     setAnswers({})
@@ -139,7 +143,7 @@ export default function MockExams() {
         </details>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {['full', ...SUBJECTS, 'NCE Science', 'Abstract Reasoning'].map((type) => (
+          {['full', ...SUBJECTS, 'NCE Science', 'Abstract Reasoning', 'Visual Reasoning'].map((type) => (
             <button
               key={type}
               onClick={() => { setExamType(type); setPhase('confirm') }}
@@ -153,14 +157,16 @@ export default function MockExams() {
                   : type === 'English' ? '📖 English / Verbal Aptitude (20 questions)'
                   : type === 'NCE Science' ? '🔭 NCE Scientific Ability (20 questions)'
                   : type === 'Abstract Reasoning' ? '🧩 Abstract Reasoning (20 questions)'
+                  : type === 'Visual Reasoning' ? '🔷 Visual Reasoning (8 questions)'
                   : `🧪 ${type} (10 questions)`}
               </p>
               <p className="text-xs text-gray-500 mt-1">
-                {type === 'full' ? 'All subjects + Math, English, NCE Science, Abstract Reasoning · 110 minutes'
+                {type === 'full' ? 'All subjects + Math, English, NCE Science, Abstract & Visual Reasoning · 110 minutes'
                   : type === 'Math' ? '15 NCE-style quantitative questions · 25 minutes'
                   : type === 'English' ? '20 NCE verbal aptitude questions · 30 minutes'
                   : type === 'NCE Science' ? 'Data analysis, experiments, reasoning · 20 minutes'
                   : type === 'Abstract Reasoning' ? 'Patterns, sequences, analogies, logic puzzles · 25 minutes'
+                  : type === 'Visual Reasoning' ? 'Shape matrices, sequences, odd-one-out diagrams · 20 minutes'
                   : `15 minutes · ${type} only`}
               </p>
             </button>
@@ -180,8 +186,8 @@ export default function MockExams() {
             {examType === 'full' ? 'Full Science Exam' : `${examType} Quiz`}
           </h2>
           <div className="text-sm text-gray-500 space-y-1">
-            <p>Questions: <strong className="text-gray-800">{examType === 'full' ? 100 : examType === 'Math' ? 15 : examType === 'English' ? 20 : examType === 'NCE Science' ? 20 : examType === 'Abstract Reasoning' ? 20 : 10}</strong></p>
-            <p>Time limit: <strong className="text-gray-800">{examType === 'full' ? '110 minutes' : examType === 'Math' ? '25 minutes' : examType === 'English' ? '30 minutes' : examType === 'NCE Science' ? '30 minutes' : examType === 'Abstract Reasoning' ? '25 minutes' : '15 minutes'}</strong></p>
+            <p>Questions: <strong className="text-gray-800">{examType === 'full' ? 100 : examType === 'Math' ? 15 : examType === 'English' ? 20 : examType === 'NCE Science' ? 20 : examType === 'Abstract Reasoning' ? 20 : examType === 'Visual Reasoning' ? 8 : 10}</strong></p>
+            <p>Time limit: <strong className="text-gray-800">{examType === 'full' ? '110 minutes' : examType === 'Math' ? '25 minutes' : examType === 'English' ? '30 minutes' : examType === 'NCE Science' ? '30 minutes' : examType === 'Abstract Reasoning' ? '25 minutes' : examType === 'Visual Reasoning' ? '20 minutes' : '15 minutes'}</strong></p>
             <p>XP reward: <strong className="text-amber-600">20–75 XP</strong> based on score</p>
           </div>
           <div className="flex gap-3 justify-center pt-2">
@@ -196,7 +202,7 @@ export default function MockExams() {
   // ── EXAM PHASE ────────────────────────────────────────────────────────────
   if (phase === 'exam') {
     const q = questions[current]
-    const totalTime = examType === 'full' ? EXAM_TIME : examType === 'Math' ? 25 * 60 : examType === 'English' ? 30 * 60 : examType === 'NCE Science' ? 30 * 60 : examType === 'Abstract Reasoning' ? 25 * 60 : 15 * 60
+    const totalTime = examType === 'full' ? EXAM_TIME : examType === 'Math' ? 25 * 60 : examType === 'English' ? 30 * 60 : examType === 'NCE Science' ? 30 * 60 : examType === 'Abstract Reasoning' ? 25 * 60 : examType === 'Visual Reasoning' ? 20 * 60 : 15 * 60
     const answered = new Set(Object.keys(answers).map(Number))
 
     return (
@@ -222,31 +228,65 @@ export default function MockExams() {
 
         {/* Question card */}
         <div className="card space-y-4">
-          <div className="flex items-start gap-3">
-            <span className="shrink-0 w-7 h-7 rounded-lg bg-brand-100 text-brand-700 font-bold text-xs flex items-center justify-center">
-              {current + 1}
-            </span>
-            <p className="font-medium text-gray-900 leading-relaxed">{q.question}</p>
-          </div>
-          <div className="space-y-2">
-            {q.options.map((opt) => {
-              const letter = opt[0]
-              const selected = answers[current] === letter
-              return (
-                <button
-                  key={letter}
-                  onClick={() => handleAnswer(letter)}
-                  className={`w-full text-left px-4 py-3 rounded-xl border text-sm font-medium transition-all ${
-                    selected
-                      ? 'bg-brand-50 border-brand-400 text-brand-800'
-                      : 'border-gray-200 text-gray-700 hover:bg-gray-50'
-                  }`}
-                >
-                  {opt}
-                </button>
-              )
-            })}
-          </div>
+          {q.kind ? (
+            // Visual (matrix/sequence/odd-one-out) reasoning item — rendered as shapes
+            <>
+              <div className="flex items-start gap-3 mb-1">
+                <span className="shrink-0 w-7 h-7 rounded-lg bg-brand-100 text-brand-700 font-bold text-xs flex items-center justify-center">
+                  {current + 1}
+                </span>
+                <span className="text-xs text-gray-400 mt-1.5">Visual Abstract Reasoning</span>
+              </div>
+              <VisualReasoningItem question={q} />
+              <div className="flex justify-center gap-2 pt-1">
+                {q.options.map((_, i) => {
+                  const letter = ['A', 'B', 'C', 'D', 'E'][i]
+                  const selected = answers[current] === letter
+                  return (
+                    <button
+                      key={letter}
+                      onClick={() => handleAnswer(letter)}
+                      className={`w-10 h-10 rounded-xl border text-sm font-bold transition-all ${
+                        selected
+                          ? 'bg-brand-50 border-brand-400 text-brand-800 ring-2 ring-brand-200'
+                          : 'border-gray-200 text-gray-600 hover:bg-gray-50'
+                      }`}
+                    >
+                      {letter}
+                    </button>
+                  )
+                })}
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="flex items-start gap-3">
+                <span className="shrink-0 w-7 h-7 rounded-lg bg-brand-100 text-brand-700 font-bold text-xs flex items-center justify-center">
+                  {current + 1}
+                </span>
+                <p className="font-medium text-gray-900 leading-relaxed">{q.question}</p>
+              </div>
+              <div className="space-y-2">
+                {q.options.map((opt) => {
+                  const letter = opt[0]
+                  const selected = answers[current] === letter
+                  return (
+                    <button
+                      key={letter}
+                      onClick={() => handleAnswer(letter)}
+                      className={`w-full text-left px-4 py-3 rounded-xl border text-sm font-medium transition-all ${
+                        selected
+                          ? 'bg-brand-50 border-brand-400 text-brand-800'
+                          : 'border-gray-200 text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      {opt}
+                    </button>
+                  )
+                })}
+              </div>
+            </>
+          )}
         </div>
 
         {/* Nav buttons */}
@@ -300,8 +340,11 @@ export default function MockExams() {
                 <div key={q.id} className={`card border-l-4 ${correct ? 'border-emerald-400' : 'border-red-400'}`}>
                   <p className="text-sm font-semibold text-gray-800 mb-2">
                     <span className={`mr-2 ${correct ? 'text-emerald-600' : 'text-red-500'}`}>{correct ? '✓' : '✗'}</span>
-                    Q{i + 1}. {q.question}
+                    Q{i + 1}. {q.kind ? (q.prompt ?? 'Visual reasoning item') : q.question}
                   </p>
+                  {q.kind && (
+                    <div className="mb-2 scale-90 origin-left"><VisualReasoningItem question={q} /></div>
+                  )}
                   {!correct && (
                     <p className="text-xs text-red-600 mb-1">Your answer: {userAns ?? 'Not answered'}</p>
                   )}
