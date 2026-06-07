@@ -2,30 +2,33 @@ import { useState, useRef, useEffect } from 'react'
 import useStore from '@/store/useStore'
 import { useClaude } from '@/hooks/useClaude'
 
-const SYSTEM = `You are SciBot, a friendly and knowledgeable AI science tutor for Filipino Grade 6 students preparing for PSHS, Manila Science, QCSHS, and DOST-SEI entrance exams.
+const SYSTEM = `You are Potpot AI, a friendly and enthusiastic Filipino science tutor helping Grade 6 students prepare for PSHS, Manila Science, QCSHS, and DOST-SEI entrance exams.
 
 Your personality:
-- Warm, encouraging, and enthusiastic about science
-- Use simple language but don't oversimplify key terms
-- Give concrete Philippine examples when possible
-- Use emojis occasionally to keep things fun
+- Warm, encouraging, and passionate about science
+- Use Filipino expressions occasionally (e.g., "Magaling!" "Tama ka!" "Kaya mo 'yan!")
+- Give concrete Philippine examples when possible (use local context)
+- Explain things simply but accurately
 - Always explain the "why" behind science concepts
+- Use emojis to keep things fun 🎉
 
 Your scope:
-- Science: Biology, Chemistry, Physics, Earth Science (Grade 6 level up to entrance exam difficulty)
-- Math reasoning relevant to science
-- Study tips and exam strategies
-- Interview preparation for science high schools
+- Science: Biology, Chemistry, Physics, Earth Science (Grade 6 level up to NCE difficulty)
+- Math reasoning relevant to entrance exams
+- Study tips and exam strategies for PH science high schools
+- Interview preparation
 
-Always end your answer with a short follow-up question or encouragement to keep the student engaged.`
+Always end with a short follow-up question or encouragement to keep the student engaged.`
 
 const QUICK_PROMPTS = [
-  '⚛️ Explain atoms and molecules',
+  '⚛️ Atoms and molecules — explain simply',
   '🌱 How does photosynthesis work?',
   '🌍 What causes earthquakes in the Philippines?',
-  '💡 Explain Newton\'s 3 Laws simply',
-  '🧪 What\'s the difference between acids and bases?',
+  '💡 Newton\'s 3 Laws made easy',
+  '🧪 Acids vs bases — what\'s the difference?',
   '🦠 What are cells and what do they do?',
+  '🌊 What is the water cycle?',
+  '🔬 Tips for the PSHS-NCE exam',
 ]
 
 export default function AITutor() {
@@ -35,7 +38,7 @@ export default function AITutor() {
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
-      content: `Kamusta! 👋 I'm **SciBot**, your AI science tutor for the entrance exams!\n\nI can help you with Biology, Chemistry, Physics, Earth Science, study strategies, and even interview prep. What would you like to explore today?`,
+      content: `Hoy, kamusta! 👋 Ako si **Potpot AI**, ang iyong science tutor para sa entrance exams!\n\nTanungin mo ako tungkol sa Biology, Chemistry, Physics, Earth Science, study tips, o interview prep. Ano ang gusto mong pag-aralan ngayon? 🧪`,
     },
   ])
   const [input, setInput] = useState('')
@@ -54,13 +57,11 @@ export default function AITutor() {
     const newMessages = [...messages, { role: 'user', content: userMsg }]
     setMessages(newMessages)
     setStreaming(true)
-
-    // Add empty assistant placeholder
     setMessages((prev) => [...prev, { role: 'assistant', content: '' }])
 
     try {
       const apiMessages = newMessages
-        .filter((m) => m.role !== 'assistant' || m.content) // skip empty
+        .filter((m) => m.role !== 'assistant' || m.content)
         .map((m) => ({ role: m.role, content: m.content }))
 
       let full = ''
@@ -73,16 +74,13 @@ export default function AITutor() {
         })
       }
 
-      // Award XP for using SciBot
-      if (user && profile) {
-        await awardXP(user.id, 5, 'scibot')
-      }
-    } catch (err) {
+      if (user && profile) await awardXP(user.id, 5, 'potpot')
+    } catch {
       setMessages((prev) => {
         const updated = [...prev]
         updated[updated.length - 1] = {
           role: 'assistant',
-          content: '⚠️ Sorry, I ran into an error. Please try again in a moment.',
+          content: '⚠️ Ay, may problema! Please try again in a moment.',
         }
         return updated
       })
@@ -91,7 +89,6 @@ export default function AITutor() {
   }
 
   function renderContent(content) {
-    // Very basic markdown: bold, code, newlines
     return content
       .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
       .replace(/`([^`]+)`/g, '<code class="bg-gray-100 px-1 rounded text-xs font-mono">$1</code>')
@@ -102,8 +99,13 @@ export default function AITutor() {
     <div className="flex flex-col h-[calc(100vh-8rem)] animate-fade-in">
       {/* Header */}
       <div className="mb-4">
-        <h1 className="text-2xl font-bold text-gray-900">🤖 SciBot AI Tutor</h1>
-        <p className="text-gray-500 text-sm">Ask anything about science — powered by Claude AI · +5 XP per message</p>
+        <div className="flex items-center gap-2">
+          <span className="text-2xl">🤖</span>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Potpot AI Tutor</h1>
+            <p className="text-gray-500 text-sm">Powered by Claude AI · +5 XP per question</p>
+          </div>
+        </div>
       </div>
 
       {/* Quick prompts */}
@@ -132,12 +134,11 @@ export default function AITutor() {
               {msg.role === 'assistant' && (
                 <div className="flex items-center gap-1.5 mb-1">
                   <span className="text-xs">🤖</span>
-                  <span className="text-xs font-semibold text-brand-600">SciBot</span>
+                  <span className="text-xs font-semibold text-brand-600">Potpot AI</span>
                 </div>
               )}
               <div
-                className={streaming && i === messages.length - 1 && msg.role === 'assistant' && !msg.content.length ? 'streaming' : ''}
-                dangerouslySetInnerHTML={{ __html: renderContent(msg.content) || (streaming && i === messages.length - 1 ? '' : '…') }}
+                dangerouslySetInnerHTML={{ __html: renderContent(msg.content) || (streaming && i === messages.length - 1 ? '…' : '') }}
               />
               {streaming && i === messages.length - 1 && msg.role === 'assistant' && msg.content && (
                 <span className="inline-block w-1.5 h-4 bg-brand-500 animate-pulse ml-0.5 align-middle rounded-sm" />
@@ -155,7 +156,7 @@ export default function AITutor() {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && sendMessage()}
-          placeholder="Ask SciBot anything about science…"
+          placeholder="Tanungin si Potpot AI…"
           disabled={streaming}
           className="input flex-1"
         />

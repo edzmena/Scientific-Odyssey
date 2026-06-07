@@ -12,6 +12,7 @@ import StudyTechniques from '@/pages/StudyTechniques'
 import ExamPrepPlan from '@/pages/ExamPrepPlan'
 import AITutor from '@/pages/AITutor'
 import ProgressTracker from '@/pages/ProgressTracker'
+import OdysseyGame from '@/pages/OdysseyGame'
 
 function RequireAuth({ children }) {
   const { user, loading } = useStore()
@@ -24,7 +25,6 @@ export default function App() {
   const { setUser, loadProfile, loadHistory } = useStore()
 
   useEffect(() => {
-    // Initial session check
     supabase.auth.getSession().then(({ data: { session } }) => {
       const u = session?.user ?? null
       setUser(u)
@@ -32,7 +32,6 @@ export default function App() {
       else useStore.setState({ loading: false })
     })
 
-    // Listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       const u = session?.user ?? null
       setUser(u)
@@ -58,8 +57,9 @@ export default function App() {
         <Route path="/interview" element={<MockInterview />} />
         <Route path="/study"     element={<StudyTechniques />} />
         <Route path="/prep"      element={<ExamPrepPlan />} />
-        <Route path="/scibot"    element={<AITutor />} />
+        <Route path="/potpot"    element={<AITutor />} />
         <Route path="/progress"  element={<ProgressTracker />} />
+        <Route path="/game"      element={<OdysseyGame />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
