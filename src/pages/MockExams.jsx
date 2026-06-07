@@ -1,13 +1,27 @@
 import { useState } from 'react'
 import useStore from '@/store/useStore'
-import { getQuestionsBySubject, getFullExam, SUBJECTS } from '@/data/questions'
+import { getQuestionsBySubject, SUBJECTS } from '@/data/questions'
 import MATH_QUESTIONS from '@/data/mathQuestions'
 import VERBAL_QUESTIONS from '@/data/verbalQuestions'
 import SCIENCE_ABILITY_QUESTIONS from '@/data/scienceAbilityQuestions'
 import CountdownTimer from '@/components/exam/CountdownTimer'
 import NavigationDots from '@/components/exam/NavigationDots'
 
-const EXAM_TIME = 50 * 60 // 50 minutes for full exam, 15 min per subject
+const EXAM_TIME = 110 * 60 // 110 minutes for the 100-question full exam
+
+function shuffle(arr) { return [...arr].sort(() => Math.random() - 0.5) }
+
+// Build a 100-question full exam by combining every question bank:
+// 10 each of Biology/Chemistry/Physics/Earth Science (40) + all 16 Math
+// + 24 of 30 Verbal/English + 20 NCE Scientific Ability = 100 total
+function getHundredQuestionExam() {
+  const sciences = ['Biology', 'Chemistry', 'Physics', 'Earth Science']
+    .flatMap((s) => shuffle(getQuestionsBySubject(s)).slice(0, 10))
+  const math = shuffle(MATH_QUESTIONS).slice(0, 16)
+  const verbal = shuffle(VERBAL_QUESTIONS).slice(0, 24)
+  const scienceAbility = shuffle(SCIENCE_ABILITY_QUESTIONS).slice(0, 20)
+  return shuffle([...sciences, ...math, ...verbal, ...scienceAbility])
+}
 
 export default function MockExams() {
   const { user, saveExamAttempt } = useStore()
@@ -22,7 +36,7 @@ export default function MockExams() {
 
   function startExam() {
     let qs
-    if (examType === 'full') qs = getFullExam()
+    if (examType === 'full') qs = getHundredQuestionExam()
     else if (examType === 'Math') qs = [...MATH_QUESTIONS].sort(() => Math.random() - 0.5).slice(0, 15)
     else if (examType === 'English') qs = [...VERBAL_QUESTIONS].sort(() => Math.random() - 0.5).slice(0, 20)
     else if (examType === 'NCE Science') qs = [...SCIENCE_ABILITY_QUESTIONS].sort(() => Math.random() - 0.5).slice(0, 20)
@@ -67,14 +81,14 @@ export default function MockExams() {
               }`}
             >
               <p className="font-semibold text-gray-900">
-                {type === 'full' ? '🔬 Full Exam (40 questions)'
+                {type === 'full' ? '🔬 Full Exam (100 questions)'
                   : type === 'Math' ? '📐 Math / Quantitative (15 questions)'
                   : type === 'English' ? '📖 English / Verbal Aptitude (20 questions)'
                   : type === 'NCE Science' ? '🔭 NCE Scientific Ability (20 questions)'
                   : `🧪 ${type} (10 questions)`}
               </p>
               <p className="text-xs text-gray-500 mt-1">
-                {type === 'full' ? '10 questions per subject · 50 minutes'
+                {type === 'full' ? 'All subjects + Math, English, NCE Science · 110 minutes'
                   : type === 'Math' ? '15 NCE-style quantitative questions · 25 minutes'
                   : type === 'English' ? '20 NCE verbal aptitude questions · 30 minutes'
                   : type === 'NCE Science' ? 'Data analysis, experiments, reasoning · 20 minutes'
@@ -97,8 +111,8 @@ export default function MockExams() {
             {examType === 'full' ? 'Full Science Exam' : `${examType} Quiz`}
           </h2>
           <div className="text-sm text-gray-500 space-y-1">
-            <p>Questions: <strong className="text-gray-800">{examType === 'full' ? 40 : examType === 'Math' ? 15 : examType === 'English' ? 20 : examType === 'NCE Science' ? 20 : 10}</strong></p>
-            <p>Time limit: <strong className="text-gray-800">{examType === 'full' ? '50 minutes' : examType === 'Math' ? '25 minutes' : examType === 'English' ? '30 minutes' : examType === 'NCE Science' ? '30 minutes' : '15 minutes'}</strong></p>
+            <p>Questions: <strong className="text-gray-800">{examType === 'full' ? 100 : examType === 'Math' ? 15 : examType === 'English' ? 20 : examType === 'NCE Science' ? 20 : 10}</strong></p>
+            <p>Time limit: <strong className="text-gray-800">{examType === 'full' ? '110 minutes' : examType === 'Math' ? '25 minutes' : examType === 'English' ? '30 minutes' : examType === 'NCE Science' ? '30 minutes' : '15 minutes'}</strong></p>
             <p>XP reward: <strong className="text-amber-600">20–75 XP</strong> based on score</p>
           </div>
           <div className="flex gap-3 justify-center pt-2">
