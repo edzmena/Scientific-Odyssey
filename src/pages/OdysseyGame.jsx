@@ -20,6 +20,7 @@ const INIT = {
   currentIsland: null,
   islandPools: {},    // { [islandId]: [questions...] } — randomized per-session, re-rolled on island failure
   trainingPool: null, // randomized training question set (re-rolled each training day)
+  mutinyPool: null,   // randomized, no-repeat mutiny question set (re-rolled each time the event triggers)
   olympusPool: null,  // randomized Olympus exam question set
   currentQ: 0,
   answers: {},
@@ -98,6 +99,7 @@ export default function OdysseyGame() {
   const islandQs = gs.currentIsland
     ? (gs.islandPools[gs.currentIsland] ?? activeIslandQuestions[gs.currentIsland] ?? [])
     : []
+  const mutinyQs = gs.mutinyPool ?? MUTINY_QUESTIONS
   const olympusBank = gs.legendaryMode ? LEGENDARY_OLYMPUS_QUESTIONS : (gs.hardMode ? HARD_OLYMPUS_QUESTIONS : OLYMPUS_QUESTIONS)
   const olympusQs = gs.olympusPool ?? olympusBank
 
@@ -121,7 +123,7 @@ export default function OdysseyGame() {
   }
   function getMutinyScore() {
     let score = 0
-    MUTINY_QUESTIONS.forEach((q, i) => { if (gs.mutinyAnswers[i] === q.answer) score++ })
+    mutinyQs.forEach((q, i) => { if (gs.mutinyAnswers[i] === q.answer) score++ })
     return score
   }
   function getOlympusScore() {
@@ -273,7 +275,10 @@ export default function OdysseyGame() {
         </div>
 
         {needsMutiny && (
-          <div className="card border-red-200 bg-red-50 cursor-pointer hover:shadow-md transition" onClick={() => set({ phase: 'mutiny', mutinyQ: 0, mutinyAnswers: {}, mutinySubmitted: {} })}>
+          <div className="card border-red-200 bg-red-50 cursor-pointer hover:shadow-md transition" onClick={() => set({
+            phase: 'mutiny', mutinyQ: 0, mutinyAnswers: {}, mutinySubmitted: {},
+            mutinyPool: pickQuestions(user?.id, MUTINY_QUESTIONS, Math.min(5, MUTINY_QUESTIONS.length), { record: false }),
+          })}>
             <div className="flex items-center gap-3">
               <span className="text-3xl">⚡</span>
               <div>
@@ -543,8 +548,8 @@ export default function OdysseyGame() {
 
   // ── MUTINY EVENT ─────────────────────────────────────────────────────────
   if (gs.phase === 'mutiny') {
-    const q = MUTINY_QUESTIONS[gs.mutinyQ]
-    const isLast = gs.mutinyQ === MUTINY_QUESTIONS.length - 1
+    const q = mutinyQs[gs.mutinyQ]
+    const isLast = gs.mutinyQ === mutinyQs.length - 1
     const selected = gs.mutinyAnswers[gs.mutinyQ]
     const isSubmitted = gs.mutinySubmitted?.[gs.mutinyQ]
 
@@ -562,7 +567,7 @@ export default function OdysseyGame() {
           <p className="text-sm text-red-100 mt-1">
             Eurylochus has stirred unrest. Answer wisely to restore harmony aboard the Elpis.
           </p>
-          <p className="text-xs text-red-200 mt-2">Question {gs.mutinyQ + 1} of {MUTINY_QUESTIONS.length}</p>
+          <p className="text-xs text-red-200 mt-2">Question {gs.mutinyQ + 1} of {mutinyQs.length}</p>
         </div>
 
         <div className="card space-y-4">
@@ -628,7 +633,7 @@ export default function OdysseyGame() {
             ? "Your wise leadership has calmed the crew. Eurylochus nods in respect. The Elpis sails forward, united."
             : "Some tension remains, but the journey must continue. Learn from this and lead with more wisdom next time."}
         </p>
-        <p className="text-gray-500 text-sm">{score}/{MUTINY_QUESTIONS.length} correct leadership choices</p>
+        <p className="text-gray-500 text-sm">{score}/{mutinyQs.length} correct leadership choices</p>
         <button onClick={() => set({ phase: 'map', mutinyDone: true })} className="btn-primary mx-auto">
           🗺️ Return to Map
         </button>

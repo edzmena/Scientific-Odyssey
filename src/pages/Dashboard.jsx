@@ -6,7 +6,7 @@ const CARDS = [
   { to: '/interview', icon: '🎤', title: 'Mock Interview',   desc: 'AI feedback on your interview answers' },
   { to: '/study',     icon: '📚', title: 'Study Techniques', desc: 'Pomodoro, active recall, mind mapping & more' },
   { to: '/prep',      icon: '🗓️', title: 'Exam Prep Plan',   desc: 'Personalised checklist for exam day' },
-  { to: '/scibot',    icon: '🤖', title: 'SciBot AI Tutor',  desc: 'Ask anything — powered by Claude AI' },
+  { to: '/scibot',    icon: '🤖', title: 'PotPot AI Tutor',  desc: 'Ask anything — powered by Claude AI' },
   { to: '/progress',  icon: '📊', title: 'Progress Tracker', desc: 'XP, streaks, and score history charts' },
 ]
 
