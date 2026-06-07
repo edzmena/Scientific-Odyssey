@@ -3,6 +3,7 @@ import useStore from '@/store/useStore'
 import {
   STORY_SLIDES, ISLANDS, ISLAND_QUESTIONS,
   MUTINY_QUESTIONS, OLYMPUS_QUESTIONS, HARD_OLYMPUS_QUESTIONS, TRAINING_QUESTIONS,
+  LEGENDARY_ISLANDS, LEGENDARY_ISLAND_QUESTIONS, LEGENDARY_OLYMPUS_QUESTIONS,
 } from '@/data/gameQuestions'
 import { pickQuestions } from '@/utils/questionHistory'
 
@@ -13,6 +14,7 @@ const OLYMPUS_PASS = 7  // need 7/10 to pass Olympus
 const INIT = {
   phase: 'title',
   hardMode: false,
+  legendaryMode: false,
   introSlide: 0,
   completedIslands: [],
   currentIsland: null,
@@ -89,23 +91,26 @@ export default function OdysseyGame() {
   function set(patch) { setGs(p => ({ ...p, ...patch })) }
   function reset(hard = false) { setGs({ ...INIT, hardMode: hard }) }
 
-  const islandData = ISLANDS.find(i => i.id === gs.currentIsland)
+  // Legendary Mode swaps in a brand-new set of islands, questions, and final exam
+  const activeIslands = gs.legendaryMode ? LEGENDARY_ISLANDS : ISLANDS
+  const activeIslandQuestions = gs.legendaryMode ? LEGENDARY_ISLAND_QUESTIONS : ISLAND_QUESTIONS
+  const islandData = activeIslands.find(i => i.id === gs.currentIsland)
   const islandQs = gs.currentIsland
-    ? (gs.islandPools[gs.currentIsland] ?? ISLAND_QUESTIONS[gs.currentIsland] ?? [])
+    ? (gs.islandPools[gs.currentIsland] ?? activeIslandQuestions[gs.currentIsland] ?? [])
     : []
-  const olympusBank = gs.hardMode ? HARD_OLYMPUS_QUESTIONS : OLYMPUS_QUESTIONS
+  const olympusBank = gs.legendaryMode ? LEGENDARY_OLYMPUS_QUESTIONS : (gs.hardMode ? HARD_OLYMPUS_QUESTIONS : OLYMPUS_QUESTIONS)
   const olympusQs = gs.olympusPool ?? olympusBank
 
   // Build a freshly-randomized, no-repeat pool for one island (5 questions)
   function rollIslandPool(islandId) {
-    const bank = ISLAND_QUESTIONS[islandId] ?? []
+    const bank = activeIslandQuestions[islandId] ?? []
     return pickQuestions(user?.id, bank, Math.min(5, bank.length), { record: false })
   }
   // Re-roll EVERY island's question pool — used when the player fails an island,
   // so retrying that island (and visiting any other island) avoids repeats.
   function rerollAllIslands() {
     const pools = {}
-    ISLANDS.forEach((isl) => { pools[isl.id] = rollIslandPool(isl.id) })
+    activeIslands.forEach((isl) => { pools[isl.id] = rollIslandPool(isl.id) })
     return pools
   }
 
@@ -235,24 +240,26 @@ export default function OdysseyGame() {
   // ── ISLAND MAP ───────────────────────────────────────────────────────────
   if (gs.phase === 'map') {
     const needsMutiny = !gs.mutinyDone && gs.completedIslands.length >= 3
-    const allDone = gs.completedIslands.length === ISLANDS.length
+    const allDone = gs.completedIslands.length === activeIslands.length
     return (
       <div className="space-y-6 animate-fade-in">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">🗺️ Sea of Knowledge</h1>
             <p className="text-sm text-gray-500">
-              {gs.completedIslands.length}/{ISLANDS.length} islands conquered
+              {gs.completedIslands.length}/{activeIslands.length} islands conquered
               {gs.mutinyDone && ' · Mutiny resolved ✓'}
             </p>
           </div>
-          {gs.hardMode && <span className="text-xs font-bold bg-amber-100 text-amber-700 px-3 py-1 rounded-xl">⚡ HARD MODE</span>}
+          {gs.legendaryMode
+            ? <span className="text-xs font-bold bg-purple-100 text-purple-700 px-3 py-1 rounded-xl">🔥 LEGENDARY MODE</span>
+            : gs.hardMode && <span className="text-xs font-bold bg-amber-100 text-amber-700 px-3 py-1 rounded-xl">⚡ HARD MODE</span>}
         </div>
 
         {/* Map illustration */}
         <div className="font-mono text-center text-sm text-gray-400 bg-blue-50 rounded-2xl py-3 select-none leading-relaxed">
           <span className="text-blue-300">≈≈ </span>
-          {ISLANDS.map(isl => (
+          {activeIslands.map(isl => (
             <span key={isl.id}>
               <span title={isl.name} className={gs.completedIslands.includes(isl.id) ? 'grayscale-0' : 'opacity-60'}>
                 {gs.completedIslands.includes(isl.id) ? '✅' : isl.emoji}
@@ -279,7 +286,7 @@ export default function OdysseyGame() {
         )}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {ISLANDS.map((island) => {
+          {activeIslands.map((island) => {
             const done = gs.completedIslands.includes(island.id)
             const locked = needsMutiny && !done
             return (
@@ -746,14 +753,16 @@ export default function OdysseyGame() {
           <div className="text-2xl mt-1">🎉{'  '}🏆{'  '}🎉</div>
         </div>
         <h1 className="text-3xl font-bold text-gray-900">
-          {gs.hardMode ? '⚡ Legend of Olympus!' : '🎉 You Made It!'}
+          {gs.legendaryMode ? '🔥 Legendary Status Achieved!' : gs.hardMode ? '⚡ Legend of Olympus!' : '🎉 You Made It!'}
         </h1>
         <p className="text-gray-600">
-          {gs.hardMode
+          {gs.legendaryMode
+            ? "Even Zeus is impressed. You have braved the Underworld, outwitted Prometheus, and unlocked the secrets of Atlantis. No trial in this world — or the next — can shake you now."
+            : gs.hardMode
             ? "You have conquered the hardest trial the gods could devise. Your name is etched in the Hall of Olympus forever. Athena herself bows in respect."
             : "The gates of Mount Olympus Academy open wide. The gods applaud as you walk through. Back home, Nanay Penelope wipes tears of joy, and little Telemo runs to embrace you. You did it."}
         </p>
-        <p className="text-2xl font-bold text-brand-600">{score}/{olympusQs.length} correct ✨ {gs.hardMode ? '+200 XP' : '+100 XP'}</p>
+        <p className="text-2xl font-bold text-brand-600">{score}/{olympusQs.length} correct ✨ {gs.legendaryMode ? '+300 XP' : gs.hardMode ? '+200 XP' : '+100 XP'}</p>
         <div className="bg-gradient-to-r from-amber-100 to-yellow-100 rounded-2xl p-6 border border-amber-200">
           <p className="text-2xl mb-2">👨‍👩‍👦</p>
           <p className="text-sm text-amber-800 font-medium italic">
@@ -761,7 +770,7 @@ export default function OdysseyGame() {
             <span className="text-xs text-amber-600">(A person with knowledge has power.)</span>
           </p>
         </div>
-        {!gs.hardMode && (
+        {!gs.hardMode && !gs.legendaryMode && (
           <button
             onClick={() => set({ phase: 'hard-intro', hardMode: true, completedIslands: [], mutinyDone: false, currentIsland: null, xpAwarded: false })}
             className="btn-primary mx-auto"
@@ -769,7 +778,18 @@ export default function OdysseyGame() {
             ⚡ Try Hard Mode
           </button>
         )}
-        {gs.hardMode && (
+        {gs.hardMode && !gs.legendaryMode && (
+          <button
+            onClick={() => set({
+              phase: 'legendary-intro', legendaryMode: true, hardMode: false, completedIslands: [], mutinyDone: false,
+              currentIsland: null, xpAwarded: false, islandPools: {}, olympusPool: null,
+            })}
+            className="btn-primary mx-auto bg-purple-600 hover:bg-purple-700"
+          >
+            🔥 Enter Legendary Mode
+          </button>
+        )}
+        {gs.legendaryMode && (
           <button onClick={() => reset()} className="btn-outline mx-auto">🔄 Start a New Journey</button>
         )}
       </div>
@@ -838,6 +858,28 @@ export default function OdysseyGame() {
       </div>
       <button onClick={() => set({ phase: 'intro', introSlide: 0 })} className="btn-primary mx-auto">
         ⚡ Accept the Challenge
+      </button>
+    </div>
+  )
+
+  // ── LEGENDARY MODE INTRO ─────────────────────────────────────────────────
+  if (gs.phase === 'legendary-intro') return (
+    <div className="max-w-xl mx-auto card text-center space-y-4 animate-fade-in">
+      <div className="font-mono text-center text-base select-none bg-gradient-to-b from-purple-900 to-slate-900 text-orange-300 rounded-xl py-4">
+        <div>🔥{'   '}💀{'   '}🔱</div>
+        <div className="text-xl font-bold my-1">LEGENDARY MODE</div>
+        <div className="text-sm text-purple-200">Beyond Olympus lies a darker sea...</div>
+      </div>
+      <h2 className="text-2xl font-bold text-gray-900">Three New Islands Await</h2>
+      <div className="text-left bg-gray-50 rounded-xl p-4 text-sm text-gray-700 space-y-2">
+        <p>💀 <strong>Gates of the Underworld</strong> — Hades blends every science subject into one trial</p>
+        <p>🔥 <strong>Prometheus' Forge</strong> — pure critical thinking and scientific reasoning, no formulas</p>
+        <p>🔱 <strong>Lost Atlantis</strong> — advanced math and physics from the sunken city</p>
+        <p>👑 <strong>Trial of Zeus</strong> — an all-new, even tougher final exam (need 7/12 to pass)</p>
+        <p>🏆 Win? → Become a true Legend (+300 XP)</p>
+      </div>
+      <button onClick={() => set({ phase: 'map', islandPools: rerollAllIslands() })} className="btn-primary mx-auto bg-purple-600 hover:bg-purple-700">
+        🔥 Set Sail into Legend
       </button>
     </div>
   )

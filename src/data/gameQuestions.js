@@ -537,3 +537,97 @@ export const TRAINING_QUESTIONS = [
   { q: 'What is the SI unit of temperature?', options: ['A. Fahrenheit', 'B. Celsius', 'C. Kelvin', 'D. Rankine'], answer: 'C', hint: 'Named after Lord Kelvin. 0 K is absolute zero.' },
   // Days 4-7 repeat shuffled
 ]
+
+// ═══════════════════════════════════════════════════════════════════════════
+// LEGENDARY MODE — unlocked after conquering Hard Mode (Olympus). Three brand
+// new islands with tougher, mixed-discipline challenges and no hints.
+// ═══════════════════════════════════════════════════════════════════════════
+
+export const LEGENDARY_ISLANDS = [
+  {
+    id: 'underworld',
+    name: 'Gates of the Underworld',
+    emoji: '💀',
+    subject: 'Mixed Science',
+    description: 'Hades tests the limits of your scientific knowledge.',
+    intro: "The ferryman Charon will not row you across the river Styx until you prove your mind is sharp enough to survive the realm of the dead. Hades himself watches from his throne, posing questions that blend biology, chemistry, physics, and earth science into one brutal trial.",
+    color: 'from-slate-700 to-gray-500',
+    border: 'border-slate-400',
+    bg: 'bg-slate-100',
+    crew: null,
+  },
+  {
+    id: 'prometheus',
+    name: "Prometheus' Forge",
+    emoji: '🔥',
+    subject: 'Critical Thinking',
+    description: 'The titan who stole fire challenges your reasoning.',
+    intro: "Chained to a mountain for defying the gods, Prometheus tests travelers who pass with riddles of logic, cause-and-effect, and scientific reasoning — no formulas to memorize, only your wits to rely on. Think like a titan, or be left behind.",
+    color: 'from-orange-600 to-red-500',
+    border: 'border-orange-400',
+    bg: 'bg-orange-50',
+    crew: null,
+  },
+  {
+    id: 'atlantis',
+    name: 'Lost Atlantis',
+    emoji: '🔱',
+    subject: 'Advanced Math & Physics',
+    description: 'The sunken city guards the gods\' most difficult equations.',
+    intro: "Beneath the waves lies Atlantis, the city that vanished for its hubris. Its crystal halls are inscribed with equations and physical laws far beyond what any ordinary student has faced. Solve them, and the city's ancient wisdom — and treasure — is yours.",
+    color: 'from-teal-600 to-cyan-400',
+    border: 'border-teal-400',
+    bg: 'bg-teal-50',
+    crew: null,
+  },
+]
+
+export const LEGENDARY_ISLAND_QUESTIONS = {
+  underworld: [
+    { q: 'A patient\'s blood test shows abnormally low hemoglobin. Which body system is most directly affected?', options: ['A. Skeletal system', 'B. Circulatory system', 'C. Respiratory system', 'D. Digestive system'], answer: 'B', hint: 'Hemoglobin is found in red blood cells.' },
+    { q: 'Why does ice float on liquid water, unlike most solids which sink in their own liquid?', options: ['A. Ice is colder than water', 'B. Ice molecules are arranged in a less dense, open lattice', 'C. Ice contains trapped air bubbles only', 'D. Water is heavier than its solid form due to gravity'], answer: 'B', hint: 'Hydrogen bonds form a hexagonal structure when water freezes, spacing molecules farther apart.' },
+    { q: 'A ball is thrown straight up. At the very top of its path, what is true about its velocity and acceleration?', options: ['A. Both are zero', 'B. Velocity is zero, acceleration is downward (gravity)', 'C. Velocity is upward, acceleration is zero', 'D. Both are upward'], answer: 'B', hint: 'Gravity never stops pulling downward, even at the peak.' },
+    { q: 'Limestone (calcium carbonate) reacts with acid rain. What type of rock weathering does this represent?', options: ['A. Mechanical weathering', 'B. Chemical weathering', 'C. Biological weathering only', 'D. No weathering — limestone is acid-proof'], answer: 'B', hint: 'A chemical reaction breaks down the rock\'s minerals.' },
+    { q: 'Why do astronauts experience "weightlessness" while orbiting Earth, even though gravity is still acting on them?', options: ['A. There is no gravity in space', 'B. They and their spacecraft are in continuous free-fall around Earth', 'C. Their spacesuits cancel gravity', 'D. The Sun\'s gravity balances Earth\'s'], answer: 'B', hint: 'Orbiting is essentially "falling" around the planet at high speed.' },
+    { q: 'A food web shows energy flowing from grass → grasshopper → frog → snake → hawk. If the grasshopper population suddenly crashes, what is the most likely immediate effect?', options: ['A. The hawk population will instantly increase', 'B. The frog population will likely decrease from lack of food', 'C. The grass population will decrease', 'D. The snake population will increase'], answer: 'B', hint: 'Follow the arrow — what eats grasshoppers?' },
+    { q: 'Why does a metal spoon feel colder to the touch than a wooden spoon at the same room temperature?', options: ['A. Metal is naturally colder than wood', 'B. Metal conducts heat away from your hand faster than wood does', 'C. Wood absorbs heat from the air first', 'D. Metal produces its own cold'], answer: 'B', hint: 'Think about thermal conductivity, not actual temperature.' },
+    { q: 'During a lunar eclipse, Earth\'s shadow falls on the Moon. What does this prove about Earth?', options: ['A. Earth is flat', 'B. Earth is round, since its shadow is curved', 'C. Earth does not rotate', 'D. The Moon produces its own light'], answer: 'B', hint: 'Look at the shape of the shadow\'s edge during the eclipse.' },
+  ],
+  prometheus: [
+    { q: 'A scientist notices that plants near a factory grow more slowly than plants far away. What should be the FIRST step in investigating this observation?', options: ['A. Immediately conclude the factory is the cause', 'B. Form a hypothesis and design a controlled experiment', 'C. Shut down the factory', 'D. Ignore it since it is just one observation'], answer: 'B', hint: 'The scientific method requires testing before concluding.' },
+    { q: 'If all metals conduct electricity, and copper is a metal, what can we logically conclude?', options: ['A. Copper conducts electricity', 'B. Copper is the best conductor', 'C. All conductors are metals', 'D. Copper is not a metal'], answer: 'A', hint: 'This is a simple deductive syllogism — apply the general rule to the specific case.' },
+    { q: 'A student designs an experiment to test if sunlight affects plant growth, but forgets to keep water amounts equal between groups. What is the main problem with this experiment?', options: ['A. There is no problem', 'B. Water becomes an uncontrolled variable, making results unreliable', 'C. Sunlight cannot be tested experimentally', 'D. Plants do not need water to grow'], answer: 'B', hint: 'A fair test changes only ONE variable at a time.' },
+    { q: 'Which statement is the strongest, most testable scientific hypothesis?', options: ['A. "Plants are interesting"', 'B. "Plants grow because they want to"', 'C. "Plants exposed to more sunlight will grow taller than those in shade"', 'D. "Some plants are green"'], answer: 'C', hint: 'A good hypothesis predicts a measurable relationship between two variables.' },
+    { q: 'Two students argue: one says "the experiment failed because the data didn\'t match my prediction," the other says "the data is valuable evidence regardless of the prediction." Who has the more scientific mindset?', options: ['A. The first student — predictions must always be correct', 'B. The second student — unexpected data still teaches us something', 'C. Neither — experiments that fail should be discarded', 'D. Both are wrong; only textbooks provide truth'], answer: 'B', hint: 'Science values evidence over ego — "failed" experiments often lead to discovery.' },
+    { q: 'A man says, "It rained right after I washed my car, so washing my car causes rain." What reasoning error is this?', options: ['A. Correct cause-and-effect reasoning', 'B. Mistaking coincidence (correlation) for causation', 'C. A valid scientific law', 'D. An example of a controlled experiment'], answer: 'B', hint: 'Just because two things happen together doesn\'t mean one causes the other.' },
+    { q: 'If a balloon filled with air sinks in water, but the same balloon filled with helium floats in air, what property best explains both observations?', options: ['A. Color of the balloon', 'B. Density relative to the surrounding medium', 'C. The shape of the balloon', 'D. The temperature of the room'], answer: 'B', hint: 'Whether something floats or sinks depends on how its density compares to what surrounds it.' },
+    { q: 'A graph shows that as study time increases, test scores increase — up to a point, after which more study time shows no further improvement. What does this suggest?', options: ['A. Studying never helps after a certain point', 'B. There may be a point of diminishing returns where other factors limit improvement', 'C. The graph must be wrong', 'D. Test scores are random and unrelated to study time'], answer: 'B', hint: 'Look at the shape of the trend, not just the early part of the graph.' },
+  ],
+  atlantis: [
+    { q: 'A car accelerates from 0 to 20 m/s in 5 seconds. What is its acceleration?', options: ['A. 2 m/s²', 'B. 4 m/s²', 'C. 5 m/s²', 'D. 100 m/s²'], answer: 'B', hint: 'Acceleration = change in velocity ÷ time = (20 − 0) ÷ 5.' },
+    { q: 'If x + y = 15 and x − y = 5, what is the value of x?', options: ['A. 5', 'B. 10', 'C. 15', 'D. 20'], answer: 'B', hint: 'Add the two equations together: 2x = 20.' },
+    { q: 'A wave has a frequency of 5 Hz and a wavelength of 2 meters. What is its speed?', options: ['A. 2.5 m/s', 'B. 7 m/s', 'C. 10 m/s', 'D. 25 m/s'], answer: 'C', hint: 'Wave speed = frequency × wavelength.' },
+    { q: 'What is the value of 3² + 4² − 2³?', options: ['A. 17', 'B. 25', 'C. 9', 'D. 33'], answer: 'A', hint: 'Compute each term first: 9 + 16 − 8.' },
+    { q: 'A 2 kg object is lifted 5 meters above the ground. Approximately how much potential energy does it gain? (Use g = 10 m/s²)', options: ['A. 10 J', 'B. 50 J', 'C. 100 J', 'D. 200 J'], answer: 'C', hint: 'Potential Energy = mass × gravity × height.' },
+    { q: 'If a triangle has angles in the ratio 2:3:4, what is the measure of the largest angle?', options: ['A. 40°', 'B. 60°', 'C. 80°', 'D. 100°'], answer: 'C', hint: 'The angles sum to 180°. Divide 180 by (2+3+4), then multiply by 4.' },
+    { q: 'A spring stretches 6 cm when a 2 N force is applied. Following Hooke\'s Law, how far will it stretch under a 5 N force?', options: ['A. 9 cm', 'B. 12 cm', 'C. 15 cm', 'D. 18 cm'], answer: 'C', hint: 'The stretch is proportional to the force — set up a ratio.' },
+    { q: 'What is the next term in the geometric sequence: 2, 6, 18, 54, ___?', options: ['A. 108', 'B. 144', 'C. 162', 'D. 216'], answer: 'C', hint: 'Each term is multiplied by the same number to get the next.' },
+  ],
+}
+
+// Legendary-tier final exam — guarded by Zeus himself. Tougher than Olympus/Hard Olympus.
+export const LEGENDARY_OLYMPUS_QUESTIONS = [
+  { q: 'A scientist measures the same object\'s mass three times and gets 50.2 g, 50.1 g, and 50.3 g. What does this set of measurements demonstrate?', options: ['A. The scale is broken', 'B. Good precision — the values are close together', 'C. Good accuracy — the values are correct', 'D. The object\'s mass is changing'], answer: 'B', hint: null },
+  { q: 'Which sequence correctly orders these structures from smallest to largest? Cell, Organ, Tissue, Organ system, Organism', options: ['A. Cell → Tissue → Organ → Organ system → Organism', 'B. Cell → Organ → Tissue → Organism → Organ system', 'C. Tissue → Cell → Organ → Organism → Organ system', 'D. Cell → Organism → Tissue → Organ → Organ system'], answer: 'A', hint: null },
+  { q: 'A 10 kg box is pushed across the floor with a force of 40 N, experiencing 15 N of friction. What is the net force acting on the box?', options: ['A. 15 N', 'B. 25 N', 'C. 40 N', 'D. 55 N'], answer: 'B', hint: null },
+  { q: 'If 3x − 7 = 2x + 5, what is the value of x?', options: ['A. 2', 'B. 8', 'C. 12', 'D. −2'], answer: 'C', hint: null },
+  { q: 'Which best explains why the Philippines experiences both typhoons and earthquakes?', options: ['A. It is near the equator', 'B. It sits along the Pacific Ring of Fire and in a tropical cyclone belt', 'C. It has many mountains', 'D. It is surrounded entirely by deep ocean trenches'], answer: 'B', hint: null },
+  { q: 'A solution turns red litmus paper blue. What can you conclude about the solution?', options: ['A. It is acidic', 'B. It is basic (alkaline)', 'C. It is neutral', 'D. It is a pure element'], answer: 'B', hint: null },
+  { q: 'In the sentence "Although she was tired, she finished her project," what is the relationship between the two clauses?', options: ['A. Cause and effect', 'B. Contrast/concession', 'C. Comparison', 'D. Sequence'], answer: 'B', hint: null },
+  { q: 'A pendulum completes 10 full swings in 20 seconds. What is its period?', options: ['A. 0.5 s', 'B. 2 s', 'C. 10 s', 'D. 20 s'], answer: 'B', hint: null },
+  { q: 'Which best describes the role of decomposers in an ecosystem?', options: ['A. They produce food through photosynthesis', 'B. They break down dead organisms and recycle nutrients back into the soil', 'C. They are always the largest organisms in a food chain', 'D. They convert sunlight into chemical energy'], answer: 'B', hint: null },
+  { q: 'What is the missing number in the pattern: 1, 4, 9, 16, 25, ___?', options: ['A. 30', 'B. 32', 'C. 36', 'D. 49'], answer: 'C', hint: null },
+  { q: 'A liquid has a boiling point lower than water\'s. What does this suggest about the strength of the attractive forces between its molecules compared to water?', options: ['A. They are stronger than water\'s', 'B. They are weaker than water\'s', 'C. They are exactly the same as water\'s', 'D. The boiling point has nothing to do with molecular forces'], answer: 'B', hint: null },
+  { q: 'If you double both the length and width of a rectangle, by what factor does its area increase?', options: ['A. 2', 'B. 3', 'C. 4', 'D. 8'], answer: 'C', hint: null },
+]
+
