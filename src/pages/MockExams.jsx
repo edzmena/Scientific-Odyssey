@@ -4,23 +4,27 @@ import { getQuestionsBySubject, SUBJECTS } from '@/data/questions'
 import MATH_QUESTIONS from '@/data/mathQuestions'
 import VERBAL_QUESTIONS from '@/data/verbalQuestions'
 import SCIENCE_ABILITY_QUESTIONS from '@/data/scienceAbilityQuestions'
+import ABSTRACT_REASONING_QUESTIONS from '@/data/abstractReasoningQuestions'
 import CountdownTimer from '@/components/exam/CountdownTimer'
 import NavigationDots from '@/components/exam/NavigationDots'
+import { pickQuestions } from '@/utils/questionHistory'
 
 const EXAM_TIME = 110 * 60 // 110 minutes for the 100-question full exam
 
 function shuffle(arr) { return [...arr].sort(() => Math.random() - 0.5) }
 
-// Build a 100-question full exam by combining every question bank:
-// 10 each of Biology/Chemistry/Physics/Earth Science (40) + all 16 Math
-// + 24 of 30 Verbal/English + 20 NCE Scientific Ability = 100 total
-function getHundredQuestionExam() {
+// Build a 100-question full exam by combining every question bank, using the
+// 5-day no-repeat picker so users see fresh questions across sessions:
+// 8 each of Biology/Chemistry/Physics/Earth Science (32) + 14 Math
+// + 20 Verbal/English + 16 NCE Scientific Ability + 18 Abstract Reasoning = 100 total
+function getHundredQuestionExam(userId) {
   const sciences = ['Biology', 'Chemistry', 'Physics', 'Earth Science']
-    .flatMap((s) => shuffle(getQuestionsBySubject(s)).slice(0, 10))
-  const math = shuffle(MATH_QUESTIONS).slice(0, 16)
-  const verbal = shuffle(VERBAL_QUESTIONS).slice(0, 24)
-  const scienceAbility = shuffle(SCIENCE_ABILITY_QUESTIONS).slice(0, 20)
-  return shuffle([...sciences, ...math, ...verbal, ...scienceAbility])
+    .flatMap((s) => pickQuestions(userId, getQuestionsBySubject(s), 8))
+  const math = pickQuestions(userId, MATH_QUESTIONS, 14)
+  const verbal = pickQuestions(userId, VERBAL_QUESTIONS, 20)
+  const scienceAbility = pickQuestions(userId, SCIENCE_ABILITY_QUESTIONS, 16)
+  const abstractReasoning = pickQuestions(userId, ABSTRACT_REASONING_QUESTIONS, 18)
+  return shuffle([...sciences, ...math, ...verbal, ...scienceAbility, ...abstractReasoning])
 }
 
 export default function MockExams() {
@@ -36,11 +40,12 @@ export default function MockExams() {
 
   function startExam() {
     let qs
-    if (examType === 'full') qs = getHundredQuestionExam()
-    else if (examType === 'Math') qs = [...MATH_QUESTIONS].sort(() => Math.random() - 0.5).slice(0, 15)
-    else if (examType === 'English') qs = [...VERBAL_QUESTIONS].sort(() => Math.random() - 0.5).slice(0, 20)
-    else if (examType === 'NCE Science') qs = [...SCIENCE_ABILITY_QUESTIONS].sort(() => Math.random() - 0.5).slice(0, 20)
-    else qs = getQuestionsBySubject(examType)
+    if (examType === 'full') qs = getHundredQuestionExam(user?.id)
+    else if (examType === 'Math') qs = pickQuestions(user?.id, MATH_QUESTIONS, 15)
+    else if (examType === 'English') qs = pickQuestions(user?.id, VERBAL_QUESTIONS, 20)
+    else if (examType === 'NCE Science') qs = pickQuestions(user?.id, SCIENCE_ABILITY_QUESTIONS, 20)
+    else if (examType === 'Abstract Reasoning') qs = pickQuestions(user?.id, ABSTRACT_REASONING_QUESTIONS, 20)
+    else qs = pickQuestions(user?.id, getQuestionsBySubject(examType), 10)
     setQuestions(qs)
     setAnswers({})
     setCurrent(0)
@@ -72,7 +77,7 @@ export default function MockExams() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {['full', ...SUBJECTS, 'NCE Science'].map((type) => (
+          {['full', ...SUBJECTS, 'NCE Science', 'Abstract Reasoning'].map((type) => (
             <button
               key={type}
               onClick={() => { setExamType(type); setPhase('confirm') }}
@@ -85,13 +90,15 @@ export default function MockExams() {
                   : type === 'Math' ? '📐 Math / Quantitative (15 questions)'
                   : type === 'English' ? '📖 English / Verbal Aptitude (20 questions)'
                   : type === 'NCE Science' ? '🔭 NCE Scientific Ability (20 questions)'
+                  : type === 'Abstract Reasoning' ? '🧩 Abstract Reasoning (20 questions)'
                   : `🧪 ${type} (10 questions)`}
               </p>
               <p className="text-xs text-gray-500 mt-1">
-                {type === 'full' ? 'All subjects + Math, English, NCE Science · 110 minutes'
+                {type === 'full' ? 'All subjects + Math, English, NCE Science, Abstract Reasoning · 110 minutes'
                   : type === 'Math' ? '15 NCE-style quantitative questions · 25 minutes'
                   : type === 'English' ? '20 NCE verbal aptitude questions · 30 minutes'
                   : type === 'NCE Science' ? 'Data analysis, experiments, reasoning · 20 minutes'
+                  : type === 'Abstract Reasoning' ? 'Patterns, sequences, analogies, logic puzzles · 25 minutes'
                   : `15 minutes · ${type} only`}
               </p>
             </button>
@@ -111,8 +118,8 @@ export default function MockExams() {
             {examType === 'full' ? 'Full Science Exam' : `${examType} Quiz`}
           </h2>
           <div className="text-sm text-gray-500 space-y-1">
-            <p>Questions: <strong className="text-gray-800">{examType === 'full' ? 100 : examType === 'Math' ? 15 : examType === 'English' ? 20 : examType === 'NCE Science' ? 20 : 10}</strong></p>
-            <p>Time limit: <strong className="text-gray-800">{examType === 'full' ? '110 minutes' : examType === 'Math' ? '25 minutes' : examType === 'English' ? '30 minutes' : examType === 'NCE Science' ? '30 minutes' : '15 minutes'}</strong></p>
+            <p>Questions: <strong className="text-gray-800">{examType === 'full' ? 100 : examType === 'Math' ? 15 : examType === 'English' ? 20 : examType === 'NCE Science' ? 20 : examType === 'Abstract Reasoning' ? 20 : 10}</strong></p>
+            <p>Time limit: <strong className="text-gray-800">{examType === 'full' ? '110 minutes' : examType === 'Math' ? '25 minutes' : examType === 'English' ? '30 minutes' : examType === 'NCE Science' ? '30 minutes' : examType === 'Abstract Reasoning' ? '25 minutes' : '15 minutes'}</strong></p>
             <p>XP reward: <strong className="text-amber-600">20–75 XP</strong> based on score</p>
           </div>
           <div className="flex gap-3 justify-center pt-2">
@@ -127,7 +134,7 @@ export default function MockExams() {
   // ── EXAM PHASE ────────────────────────────────────────────────────────────
   if (phase === 'exam') {
     const q = questions[current]
-    const totalTime = examType === 'full' ? EXAM_TIME : examType === 'Math' ? 25 * 60 : examType === 'English' ? 30 * 60 : examType === 'NCE Science' ? 30 * 60 : 15 * 60
+    const totalTime = examType === 'full' ? EXAM_TIME : examType === 'Math' ? 25 * 60 : examType === 'English' ? 30 * 60 : examType === 'NCE Science' ? 30 * 60 : examType === 'Abstract Reasoning' ? 25 * 60 : 15 * 60
     const answered = new Set(Object.keys(answers).map(Number))
 
     return (

@@ -4,6 +4,7 @@ import {
   STORY_SLIDES, ISLANDS, ISLAND_QUESTIONS,
   MUTINY_QUESTIONS, OLYMPUS_QUESTIONS, HARD_OLYMPUS_QUESTIONS, TRAINING_QUESTIONS,
 } from '@/data/gameQuestions'
+import { pickQuestions } from '@/utils/questionHistory'
 
 const STORAGE_KEY = 'sciodyssey_game_v1'
 const ISLAND_PASS = 3   // need 3/5+ to pass an island
@@ -15,6 +16,9 @@ const INIT = {
   introSlide: 0,
   completedIslands: [],
   currentIsland: null,
+  islandPools: {},    // { [islandId]: [questions...] } — randomized per-session, re-rolled on island failure
+  trainingPool: null, // randomized training question set (re-rolled each training day)
+  olympusPool: null,  // randomized Olympus exam question set
   currentQ: 0,
   answers: {},
   submitted: {},      // tracks which questions have been locked in by clicking Next
@@ -86,8 +90,24 @@ export default function OdysseyGame() {
   function reset(hard = false) { setGs({ ...INIT, hardMode: hard }) }
 
   const islandData = ISLANDS.find(i => i.id === gs.currentIsland)
-  const islandQs = gs.currentIsland ? (ISLAND_QUESTIONS[gs.currentIsland] ?? []) : []
-  const olympusQs = gs.hardMode ? HARD_OLYMPUS_QUESTIONS : OLYMPUS_QUESTIONS
+  const islandQs = gs.currentIsland
+    ? (gs.islandPools[gs.currentIsland] ?? ISLAND_QUESTIONS[gs.currentIsland] ?? [])
+    : []
+  const olympusBank = gs.hardMode ? HARD_OLYMPUS_QUESTIONS : OLYMPUS_QUESTIONS
+  const olympusQs = gs.olympusPool ?? olympusBank
+
+  // Build a freshly-randomized, no-repeat pool for one island (5 questions)
+  function rollIslandPool(islandId) {
+    const bank = ISLAND_QUESTIONS[islandId] ?? []
+    return pickQuestions(user?.id, bank, Math.min(5, bank.length), { record: false })
+  }
+  // Re-roll EVERY island's question pool — used when the player fails an island,
+  // so retrying that island (and visiting any other island) avoids repeats.
+  function rerollAllIslands() {
+    const pools = {}
+    ISLANDS.forEach((isl) => { pools[isl.id] = rollIslandPool(isl.id) })
+    return pools
+  }
 
   function getIslandScore() {
     let score = 0
@@ -265,7 +285,10 @@ export default function OdysseyGame() {
             return (
               <div
                 key={island.id}
-                onClick={() => !locked && set({ phase: 'island', currentIsland: island.id, currentQ: 0, answers: {}, submitted: {}, showHint: false })}
+                onClick={() => !locked && set({
+                  phase: 'island', currentIsland: island.id, currentQ: 0, answers: {}, submitted: {}, showHint: false,
+                  islandPools: gs.islandPools[island.id] ? gs.islandPools : { ...gs.islandPools, [island.id]: rollIslandPool(island.id) },
+                })}
                 className={`card border transition-all ${island.border} ${locked ? 'opacity-50 cursor-not-allowed' : 'hover:shadow-md cursor-pointer'} ${done ? 'bg-emerald-50 border-emerald-300' : island.bg}`}
               >
                 <div className="text-4xl mb-2">{done ? '✅' : island.emoji}</div>
@@ -285,7 +308,10 @@ export default function OdysseyGame() {
             <p className="text-xl font-bold mb-1">All Islands Conquered!</p>
             <p className="text-sm text-indigo-100 mb-4">The gates of Mount Olympus Academy await.</p>
             <button
-              onClick={() => set({ phase: 'olympus', olympusQ: 0, olympusAnswers: {}, olympusSubmitted: {} })}
+              onClick={() => set({
+                phase: 'olympus', olympusQ: 0, olympusAnswers: {}, olympusSubmitted: {},
+                olympusPool: pickQuestions(user?.id, olympusBank, Math.min(10, olympusBank.length), { record: false }),
+              })}
               className="bg-white text-brand-700 font-bold px-6 py-2 rounded-xl hover:bg-indigo-50 transition"
             >
               ⚡ Ascend to Mount Olympus
@@ -492,8 +518,15 @@ export default function OdysseyGame() {
         <div className="flex gap-3">
           <button onClick={() => set({ phase: 'map' })} className="btn-outline">← Back to Map</button>
           {!passed && (
-            <button onClick={() => set({ phase: 'island', currentQ: 0, answers: {}, submitted: {}, showHint: false })} className="btn-primary">
-              🔄 Try Again
+            <button
+              onClick={() => set({
+                phase: 'island', currentQ: 0, answers: {}, submitted: {}, showHint: false,
+                // Failing an island reshuffles every island's question pool to avoid repeats
+                islandPools: rerollAllIslands(),
+              })}
+              className="btn-primary"
+            >
+              🔄 Try Again (questions reshuffled)
             </button>
           )}
         </div>
@@ -768,7 +801,10 @@ export default function OdysseyGame() {
             <p className="text-sm text-amber-700">
               "Young Odysseus, you have failed the hard trial. But I will train you for 7 days. 30 minutes a day. When you are ready, you may challenge Olympus again."
             </p>
-            <button onClick={() => set({ phase: 'training', trainingDay: 0, trainingQ: 0, trainingAnswers: {}, trainingSubmitted: {}, trainingDaysComplete: [] })} className="btn-primary w-full justify-center">
+            <button onClick={() => set({
+              phase: 'training', trainingDay: 0, trainingQ: 0, trainingAnswers: {}, trainingSubmitted: {}, trainingDaysComplete: [],
+              trainingPool: pickQuestions(user?.id, TRAINING_QUESTIONS, Math.min(10, TRAINING_QUESTIONS.length), { record: false }),
+            })} className="btn-primary w-full justify-center">
               🦉 Begin Athena's Training
             </button>
           </div>
@@ -832,7 +868,7 @@ export default function OdysseyGame() {
       </div>
     )
 
-    const trainingQs = TRAINING_QUESTIONS.slice(0, 10)
+    const trainingQs = gs.trainingPool ?? TRAINING_QUESTIONS.slice(0, 10)
     const tq = trainingQs[gs.trainingQ]
     const tSelected = gs.trainingAnswers[gs.trainingQ]
     const tSubmitted = gs.trainingSubmitted?.[gs.trainingQ]
@@ -897,7 +933,10 @@ export default function OdysseyGame() {
                 if (!tSubmitted) {
                   const newSub = { ...(gs.trainingSubmitted ?? {}), [gs.trainingQ]: true }
                   if (isLast) {
-                    set({ trainingDaysComplete: [...gs.trainingDaysComplete, daysDone], trainingQ: 0, trainingAnswers: {}, trainingSubmitted: {} })
+                    set({
+                      trainingDaysComplete: [...gs.trainingDaysComplete, daysDone], trainingQ: 0, trainingAnswers: {}, trainingSubmitted: {},
+                      trainingPool: pickQuestions(user?.id, TRAINING_QUESTIONS, Math.min(10, TRAINING_QUESTIONS.length), { record: false }),
+                    })
                   } else {
                     set({ trainingQ: gs.trainingQ + 1, trainingSubmitted: newSub })
                   }
