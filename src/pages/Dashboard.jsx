@@ -1,5 +1,27 @@
+import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import useStore, { getXPProgress } from '@/store/useStore'
+
+const STUDY_TIPS = [
+  { title: 'Feynman Technique', body: "Pick one science concept today and explain it out loud in simple words as if teaching a classmate. If you get stuck, that's exactly where to study next!" },
+  { title: 'Active Recall', body: 'Close your notes and try to write down everything you remember about a topic before re-reading it. Testing yourself beats re-reading every time.' },
+  { title: 'Spaced Repetition', body: "Review yesterday's lesson for 5 minutes before starting something new. Spreading reviews over several days makes facts stick much longer." },
+  { title: 'Pomodoro Power', body: 'Study in focused 25-minute sprints with a 5-minute break in between. Short bursts keep your brain fresh and your focus sharp.' },
+  { title: 'Teach to Learn', body: 'Explain a tricky topic to a sibling, parent, or even your pet. If you can make it simple for them, you truly understand it.' },
+  { title: 'Mind Mapping', body: 'Draw a diagram connecting ideas with lines and colors. Visual links between concepts help your brain retrieve them faster on exam day.' },
+  { title: 'Sleep on It', body: 'Review your notes right before bed. Your brain consolidates memories while you sleep, so a quick night-time recap really pays off.' },
+  { title: 'Practice Like the Real Thing', body: 'Take timed mock exams under quiet conditions. Getting used to the pressure now means fewer surprises on test day.' },
+  { title: 'Chunk It Down', body: "Break a big topic — like the water cycle or cell parts — into 3-4 small chunks and master one chunk at a time before moving on." },
+  { title: 'Curious Questions', body: 'Before reading a new lesson, jot down 2-3 questions you hope it answers. Reading with a purpose makes information stick better.' },
+]
+
+// Picks a tip based on today's date so it changes once per day (and therefore
+// each time the user logs in on a new day), cycling through the whole list.
+function tipOfTheDay() {
+  const today = new Date()
+  const dayKey = today.getFullYear() * 1000 + Math.floor((today - new Date(today.getFullYear(), 0, 0)) / 86400000)
+  return STUDY_TIPS[dayKey % STUDY_TIPS.length]
+}
 
 const CARDS = [
   { to: '/exams',     icon: '📝', title: 'Mock Exams',       desc: '40 PSHS-style questions across 4 subjects' },
@@ -15,6 +37,7 @@ export default function Dashboard() {
   const name = profile?.full_name || user?.user_metadata?.full_name || (user?.email ? user.email.split('@')[0] : 'Explorer')
   const firstName = name.split(' ')[0]
   const xpData = profile ? getXPProgress(profile.xp ?? 0) : null
+  const tip = useMemo(() => tipOfTheDay(), [])
 
   const totalExams = examAttempts.length
   const avgScore = totalExams
@@ -93,8 +116,7 @@ export default function Dashboard() {
         <div>
           <p className="text-sm font-semibold text-amber-800">Study Tip of the Day</p>
           <p className="text-sm text-amber-700 mt-0.5">
-            Use the <strong>Feynman Technique</strong>: pick one science concept today and explain it out loud
-            in simple words as if teaching a classmate. If you get stuck, that's exactly where to study next!
+            <strong>{tip.title}:</strong> {tip.body}
           </p>
         </div>
       </div>

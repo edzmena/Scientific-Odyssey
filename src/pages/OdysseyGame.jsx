@@ -7,6 +7,7 @@ import {
 } from '@/data/gameQuestions'
 import { pickQuestions } from '@/utils/questionHistory'
 import Confetti from '@/components/Confetti'
+import OwlHelper from '@/components/OwlHelper'
 
 const STORAGE_KEY = 'sciodyssey_game_v1'
 const ISLAND_PASS = 3   // need 3/5+ to pass an island
@@ -161,6 +162,19 @@ export default function OdysseyGame() {
     const t = setTimeout(() => setCelebration(null), 2800)
     return () => clearTimeout(t)
   }, [celebration])
+
+  // ── STUCK OWL ─────────────────────────────────────────────────────────────
+  // If the player lingers on a question for 10+ seconds without clicking
+  // Next, a friendly owl flies across the screen with an encouraging nudge.
+  const QUESTION_PHASES = ['island', 'mutiny', 'olympus', 'training']
+  const [stuck, setStuck] = useState(false)
+  useEffect(() => {
+    setStuck(false)
+    if (!QUESTION_PHASES.includes(gs.phase)) return
+    const t = setTimeout(() => setStuck(true), 10000)
+    return () => clearTimeout(t)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gs.phase, gs.currentQ, gs.mutinyQ, gs.olympusQ, gs.trainingQ])
 
   // ── TITLE ────────────────────────────────────────────────────────────────
   if (gs.phase === 'title') return (
@@ -370,6 +384,7 @@ export default function OdysseyGame() {
 
     return (
       <div className="max-w-2xl space-y-5 animate-fade-in">
+        <OwlHelper show={stuck} />
         {/* Header */}
         <div className={`rounded-2xl bg-gradient-to-r ${islandData.color} p-4 text-white`}>
           <div className="flex items-center gap-3">
@@ -579,6 +594,7 @@ export default function OdysseyGame() {
 
     return (
       <div className="max-w-2xl space-y-5 animate-fade-in">
+        <OwlHelper show={stuck} />
         <div className="card bg-gradient-to-r from-red-500 to-orange-400 text-white">
           {/* Mutiny illustration */}
           <div className="font-mono text-center text-sm mb-3 opacity-80 select-none leading-tight">
@@ -674,6 +690,7 @@ export default function OdysseyGame() {
 
     return (
       <div className="max-w-2xl space-y-5 animate-fade-in">
+        <OwlHelper show={stuck} />
         <div className="card bg-gradient-to-r from-brand-700 to-indigo-600 text-white">
           {/* Olympus illustration */}
           <div className="font-mono text-center text-sm mb-2 opacity-70 select-none leading-tight">
@@ -948,6 +965,7 @@ export default function OdysseyGame() {
 
     return (
       <div className="max-w-2xl space-y-5 animate-fade-in">
+        <OwlHelper show={stuck} />
         <div className="card bg-gradient-to-r from-amber-500 to-yellow-400 text-white">
           <div className="flex items-center gap-2 mb-1">
             <span className="text-2xl">🦉</span>
