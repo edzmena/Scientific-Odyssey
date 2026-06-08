@@ -48,7 +48,7 @@ export default function Dashboard() {
     <div className="space-y-8 animate-fade-in">
       {/* Hero greeting */}
       <div className="bg-gradient-to-r from-brand-600 to-indigo-500 rounded-2xl p-8 text-white">
-        <h1 className="text-2xl font-bold mb-1">Welcome back, {firstName}! 👋</h1>
+        <h1 className="text-2xl font-bold mb-1">Kumusta, {firstName}! 👋</h1>
         <p className="text-indigo-100 text-sm">
           Keep up the momentum — every study session brings you closer to your dream school.
         </p>
