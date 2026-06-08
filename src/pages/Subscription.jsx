@@ -3,8 +3,8 @@ import { supabase } from '@/lib/supabase'
 import useStore from '@/store/useStore'
 
 const MONTHLY_PRICE = 250
-const GCASH_NUMBER = '0917-XXX-XXXX'   // TODO: replace with your real GCash number
-const GCASH_NAME = 'Your Name Here'    // TODO: replace with the GCash account name
+const GCASH_NUMBER = '0966-774-3444'   // TODO: replace with your real GCash number
+const GCASH_NAME = 'Edilyn Mena'    // TODO: replace with the GCash account name
 
 function daysLeft(dateStr) {
   if (!dateStr) return 0
