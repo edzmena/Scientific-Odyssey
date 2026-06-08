@@ -16,7 +16,7 @@ const NAV = [
 
 const STREAK_MILESTONES = [3, 7, 14, 30, 60, 100]
 
-export default function Sidebar() {
+export default function Sidebar({ mobileOpen = false, onClose = () => {} }) {
   const navigate = useNavigate()
   const { user, profile } = useStore()
   const xpData = profile ? getXPProgress(profile.xp ?? 0) : null
@@ -30,25 +30,37 @@ export default function Sidebar() {
   const nextMilestone = STREAK_MILESTONES.find(m => m > streak) ?? 100
 
   return (
-    <aside className="w-64 min-h-screen bg-white border-r border-gray-100 flex flex-col">
+    <aside
+      className={`fixed lg:static inset-y-0 left-0 z-50 w-64 min-h-screen bg-white border-r border-gray-100 flex flex-col
+        transform transition-transform duration-200 ease-in-out
+        ${mobileOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0`}
+    >
       {/* Logo */}
       <div className="px-6 py-5 flex items-center gap-3 border-b border-gray-100">
         <div className="w-10 h-10 rounded-xl overflow-hidden flex items-center justify-center bg-white ring-1 ring-gray-100">
           <img src={logo} alt="Scientific Odyssey logo" className="w-full h-full object-cover" />
         </div>
-        <div>
+        <div className="flex-1">
           <p className="text-sm font-bold text-gray-900 leading-tight">Scientific</p>
           <p className="text-xs font-semibold text-brand-600 leading-tight">Odyssey</p>
         </div>
+        <button
+          onClick={onClose}
+          aria-label="Close menu"
+          className="lg:hidden w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-700"
+        >
+          ✕
+        </button>
       </div>
 
       {/* Nav links */}
-      <nav className="flex-1 px-3 py-4 space-y-0.5">
+      <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
         {NAV.map(({ to, label, icon, highlight }) => (
           <NavLink
             key={to}
             to={to}
             end={to === '/'}
+            onClick={onClose}
             className={({ isActive }) =>
               `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
                 highlight

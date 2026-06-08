@@ -76,7 +76,7 @@ export default function Dashboard() {
 
       {/* Quick stats */}
       {totalExams > 0 && (
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-3 gap-2 sm:gap-4">
           <div className="card text-center">
             <p className="text-2xl font-bold text-brand-600">{totalExams}</p>
             <p className="text-xs text-gray-500 mt-1">Exams taken</p>
