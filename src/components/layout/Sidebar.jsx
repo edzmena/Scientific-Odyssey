@@ -12,6 +12,7 @@ const NAV = [
   { to: '/potpot',    label: 'Potpot AI Tutor',    icon: '🤖' },
   { to: '/progress',  label: 'Progress Tracker',   icon: '📊' },
   { to: '/game',      label: 'Scientific Odyssey', icon: '⛵', highlight: true },
+  { to: '/subscription', label: 'Subscription',    icon: '💳' },
 ]
 
 const STREAK_MILESTONES = [3, 7, 14, 30, 60, 100]
@@ -77,6 +78,20 @@ export default function Sidebar({ mobileOpen = false, onClose = () => {} }) {
             {label}
           </NavLink>
         ))}
+        {profile?.is_admin && (
+          <NavLink
+            to="/admin"
+            onClick={onClose}
+            className={({ isActive }) =>
+              `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
+                isActive ? 'bg-gray-900 text-white font-semibold' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 border border-gray-200'
+              }`
+            }
+          >
+            <span className="text-base">⚙️</span>
+            Admin Dashboard
+          </NavLink>
+        )}
       </nav>
 
       {/* Streak tracker */}

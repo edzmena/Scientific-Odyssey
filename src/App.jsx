@@ -13,6 +13,9 @@ import ExamPrepPlan from '@/pages/ExamPrepPlan'
 import AITutor from '@/pages/AITutor'
 import ProgressTracker from '@/pages/ProgressTracker'
 import OdysseyGame from '@/pages/OdysseyGame'
+import ResetPassword from '@/pages/ResetPassword'
+import Subscription from '@/pages/Subscription'
+import AdminDashboard from '@/pages/AdminDashboard'
 
 function RequireAuth({ children }) {
   const { user, loading } = useStore()
@@ -45,6 +48,7 @@ export default function App() {
   return (
     <Routes>
       <Route path="/auth" element={<Auth />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
       <Route
         element={
           <RequireAuth>
@@ -60,6 +64,8 @@ export default function App() {
         <Route path="/potpot"    element={<AITutor />} />
         <Route path="/progress"  element={<ProgressTracker />} />
         <Route path="/game"      element={<OdysseyGame />} />
+        <Route path="/subscription" element={<Subscription />} />
+        <Route path="/admin"     element={<AdminDashboard />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
