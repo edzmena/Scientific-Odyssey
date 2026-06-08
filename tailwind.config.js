@@ -28,12 +28,12 @@ export default {
           '100%': { opacity: 1, transform: 'translateY(0)' },
         },
         owlFly: {
-          '0%':   { left: '-10%', transform: 'translateY(0) scaleX(-1)' },
-          '24%':  { left: '40%',  transform: 'translateY(-30px) scaleX(-1)' },
-          '49%':  { left: '90%',  transform: 'translateY(10px) scaleX(-1)' },
-          '50%':  { left: '90%',  transform: 'translateY(10px) scaleX(1)' },
-          '74%':  { left: '40%',  transform: 'translateY(-20px) scaleX(1)' },
-          '100%': { left: '-10%', transform: 'translateY(0) scaleX(1)' },
+          '0%':   { transform: 'translateX(-15vw) translateY(0px) scaleX(-1)' },
+          '24%':  { transform: 'translateX(38vw) translateY(-50px) scaleX(-1)' },
+          '49%':  { transform: 'translateX(112vw) translateY(20px) scaleX(-1)' },
+          '50%':  { transform: 'translateX(112vw) translateY(20px) scaleX(1)' },
+          '74%':  { transform: 'translateX(38vw) translateY(-30px) scaleX(1)' },
+          '100%': { transform: 'translateX(-15vw) translateY(0px) scaleX(1)' },
         },
         owlBob: {
           '0%':   { transform: 'translateY(0)' },
