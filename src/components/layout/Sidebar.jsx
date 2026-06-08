@@ -12,7 +12,6 @@ const NAV = [
   { to: '/potpot',    label: 'Potpot AI Tutor',    icon: '🤖' },
   { to: '/progress',  label: 'Progress Tracker',   icon: '📊' },
   { to: '/game',      label: 'Scientific Odyssey', icon: '⛵', highlight: true },
-  { to: '/subscription', label: 'Subscription',    icon: '💳' },
 ]
 
 const STREAK_MILESTONES = [3, 7, 14, 30, 60, 100]
@@ -78,6 +77,20 @@ export default function Sidebar({ mobileOpen = false, onClose = () => {} }) {
             {label}
           </NavLink>
         ))}
+        {profile?.is_admin && (
+          <NavLink
+            to="/subscription"
+            onClick={onClose}
+            className={({ isActive }) =>
+              `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
+                isActive ? 'bg-brand-50 text-brand-700 font-semibold' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+              }`
+            }
+          >
+            <span className="text-base">💳</span>
+            Subscription
+          </NavLink>
+        )}
         {profile?.is_admin && (
           <NavLink
             to="/admin"

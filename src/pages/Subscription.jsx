@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Navigate } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
 import useStore from '@/store/useStore'
 
@@ -24,6 +25,8 @@ export default function Subscription() {
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState('')
+
+  if (profile && !profile.is_admin) return <Navigate to="/" replace />
 
   const status = profile?.subscription_status ?? 'trial'
   const trialEnds = profile?.trial_ends_at
