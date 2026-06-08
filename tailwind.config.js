@@ -19,8 +19,8 @@ export default {
       },
       animation: {
         'fade-in': 'fadeIn 0.3s ease-in-out',
-        'owl-fly': 'owlFly 9s linear infinite',
-        'owl-bob': 'owlBob 0.6s ease-in-out infinite alternate',
+        'owl-fly': 'owlFly 4s ease-in-out infinite',
+        'owl-bob': 'owlBob 0.35s ease-in-out infinite alternate',
       },
       keyframes: {
         fadeIn: {
