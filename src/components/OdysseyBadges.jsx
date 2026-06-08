@@ -12,7 +12,7 @@ export default function OdysseyBadges({ streak = 0 }) {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="font-bold text-gray-900">🏺 Odyssey Badges</h2>
-          <p className="text-xs text-gray-500 mt-0.5">Earn 1 badge every 5-day streak · Characters from Homer's The Odyssey</p>
+          <p className="text-xs text-gray-500 mt-0.5">Earn 1 badge every 2-day streak · Characters from Homer's The Odyssey</p>
         </div>
         <div className="text-right">
           <p className="text-2xl font-bold text-brand-600">{earned.length}<span className="text-sm text-gray-400">/{BADGES.length}</span></p>
