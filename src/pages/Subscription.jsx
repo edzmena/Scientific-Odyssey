@@ -6,10 +6,16 @@ const MONTHLY_PRICE = 250
 const GCASH_NUMBER = '0966-774-3444'   // TODO: replace with your real GCash number
 const GCASH_NAME = 'Edilyn Mena'    // TODO: replace with the GCash account name
 
+function localDateStr(d = new Date()) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
+
 function daysLeft(dateStr) {
   if (!dateStr) return 0
-  const diff = new Date(dateStr) - new Date(new Date().toISOString().split('T')[0])
-  return Math.ceil(diff / 86400000)
+  const [ty, tm, td] = dateStr.split('-').map(Number)
+  const [ny, nm, nd] = localDateStr().split('-').map(Number)
+  const diff = new Date(ty, tm - 1, td) - new Date(ny, nm - 1, nd)
+  return Math.round(diff / 86400000)
 }
 
 export default function Subscription() {
