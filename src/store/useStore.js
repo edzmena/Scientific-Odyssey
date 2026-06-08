@@ -1,6 +1,17 @@
 import { create } from 'zustand'
 import { supabase } from '@/lib/supabase'
-import { isToday, isYesterday, parseISO } from 'date-fns'
+// Local-date helpers for streak tracking. We deliberately avoid
+// `Date#toISOString` (which is UTC-based): for PH users (UTC+8), any login
+// before 8am local time would be stamped with "yesterday's" UTC date, which
+// then confused the day-difference comparison and made streaks never advance.
+function localDateStr(d = new Date()) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
+function daysBetween(fromStr, toStr) {
+  const [fy, fm, fd] = fromStr.split('-').map(Number)
+  const [ty, tm, td] = toStr.split('-').map(Number)
+  return Math.round((new Date(ty, tm - 1, td) - new Date(fy, fm - 1, fd)) / 86400000)
+}
 
 // XP level thresholds
 export const LEVEL_THRESHOLDS = [0, 100, 250, 500, 900, 1400, 2000, 2800, 3700, 4700]
@@ -61,13 +72,13 @@ const useStore = create((set, get) => ({
 
     // Streak logic
     let { streak = 1, last_active } = profile
-    const today = new Date().toISOString().split('T')[0]
+    const today = localDateStr()
 
     if (last_active) {
-      const lastDate = parseISO(last_active)
-      if (isToday(lastDate)) {
-        // no change
-      } else if (isYesterday(lastDate)) {
+      const diff = daysBetween(last_active, today)
+      if (diff === 0) {
+        // already logged in today — no change
+      } else if (diff === 1) {
         streak += 1
         await supabase.from('profiles').update({ streak, last_active: today }).eq('id', userId)
       } else {
@@ -75,6 +86,7 @@ const useStore = create((set, get) => ({
         await supabase.from('profiles').update({ streak, last_active: today }).eq('id', userId)
       }
     } else {
+      streak = 1
       await supabase.from('profiles').update({ streak: 1, last_active: today }).eq('id', userId)
     }
 
