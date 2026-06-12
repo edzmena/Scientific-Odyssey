@@ -8,6 +8,7 @@ import {
 import { pickQuestions } from '@/utils/questionHistory'
 import Confetti from '@/components/Confetti'
 import OwlHelper from '@/components/OwlHelper'
+import { hasActiveAccess } from '@/lib/subscription'
 
 const STORAGE_KEY = 'sciodyssey_game_v1'
 const ISLAND_PASS = 3   // need 3/5+ to pass an island
@@ -82,7 +83,8 @@ const ISLAND_ILLUSTRATIONS = {
 }
 
 export default function OdysseyGame() {
-  const { user, awardXP } = useStore()
+  const { user, awardXP, profile } = useStore()
+  const canAccessPremium = hasActiveAccess(profile)
 
   const [gs, setGs] = useState(() => {
     try { return { ...INIT, ...JSON.parse(localStorage.getItem(STORAGE_KEY)) } }
@@ -818,12 +820,21 @@ export default function OdysseyGame() {
           </p>
         </div>
         {!gs.hardMode && !gs.legendaryMode && (
-          <button
-            onClick={() => set({ phase: 'hard-intro', hardMode: true, completedIslands: [], mutinyDone: false, currentIsland: null, xpAwarded: false })}
-            className="btn-primary mx-auto"
-          >
-            ⚡ Try Hard Mode
-          </button>
+          canAccessPremium ? (
+            <button
+              onClick={() => set({ phase: 'hard-intro', hardMode: true, completedIslands: [], mutinyDone: false, currentIsland: null, xpAwarded: false })}
+              className="btn-primary mx-auto"
+            >
+              ⚡ Try Hard Mode
+            </button>
+          ) : (
+            <div className="text-center space-y-1">
+              <button disabled className="btn-primary mx-auto opacity-60 cursor-not-allowed">
+                🔒 Hard Mode
+              </button>
+              <p className="text-xs text-gray-400">Subscribe to unlock Hard Mode and earn +200 XP</p>
+            </div>
+          )
         )}
         {gs.hardMode && !gs.legendaryMode && (
           <button

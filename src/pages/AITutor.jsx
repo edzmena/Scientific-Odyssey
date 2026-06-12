@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import useStore from '@/store/useStore'
 import { useClaude } from '@/hooks/useClaude'
+import { hasActiveAccess } from '@/lib/subscription'
 
 const SYSTEM = `You are Potpot AI, a friendly and enthusiastic Filipino science tutor helping Grade 6 students prepare for PSHS, Manila Science, QCSHS, and DOST-SEI entrance exams.
 
@@ -33,6 +34,7 @@ const QUICK_PROMPTS = [
 
 export default function AITutor() {
   const { user, profile, awardXP } = useStore()
+  const canAccessPremium = hasActiveAccess(profile)
   const { stream } = useClaude()
 
   const [messages, setMessages] = useState([
@@ -150,24 +152,32 @@ export default function AITutor() {
       </div>
 
       {/* Input */}
-      <div className="flex gap-3">
-        <input
-          type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && sendMessage()}
-          placeholder="Tanungin si Potpot AI…"
-          disabled={streaming}
-          className="input flex-1"
-        />
-        <button
-          onClick={() => sendMessage()}
-          disabled={!input.trim() || streaming}
-          className="btn-primary px-4"
-        >
-          {streaming ? '⏳' : '→'}
-        </button>
-      </div>
+      {canAccessPremium ? (
+        <div className="flex gap-3">
+          <input
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && sendMessage()}
+            placeholder="Tanungin si Potpot AI…"
+            disabled={streaming}
+            className="input flex-1"
+          />
+          <button
+            onClick={() => sendMessage()}
+            disabled={!input.trim() || streaming}
+            className="btn-primary px-4"
+          >
+            {streaming ? '⏳' : '→'}
+          </button>
+        </div>
+      ) : (
+        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-center space-y-2">
+          <p className="text-lg">🔒</p>
+          <p className="font-semibold text-amber-800 text-sm">Your free trial has ended</p>
+          <p className="text-xs text-amber-600">Subscribe for ₱250/month to keep chatting with Potpot AI and unlock all premium features.</p>
+        </div>
+      )}
     </div>
   )
 }
